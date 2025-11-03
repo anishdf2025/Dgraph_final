@@ -1,0 +1,13 @@
+type Judgment {
+  judgment_id
+  title
+  doc_id
+  year
+  cites
+}
+
+judgment_id: string @index(exact) .
+title: string @index(exact, term, fulltext) @upsert .
+doc_id: string @index(exact) @upsert .
+year: int @index(int) .
+cites: [uid] @reverse .
