@@ -7,7 +7,7 @@ live_cmd = [
     "-v", "/home/anish/Desktop/Anish/Dgraph_final:/data",
     "dgraph/dgraph:v23.1.0",
     "dgraph", "live",
-    "--files", "/data/judgement.rdf",
+    "--files", "/data/judgments.rdf",
     "--schema", "/data/rdf.schema",
     "--alpha", "dgraph-standalone:9080",
     "--zero", "dgraph-standalone:5080",

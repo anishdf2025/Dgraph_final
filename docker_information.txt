@@ -1,0 +1,168 @@
+1)unique identifier in table 
+2)about rdf formate 
+3)rdf schema files
+4)dql
+
+
+docker run -it -p 8180:8080 -p 8181:8081 -p 8000:8000 \
+  -v ~/dgraph_data:/dgraph \
+  dgraph/standalone:v23.1.0
+  
+  
+docker run -it -p 8050:8000 dgraph/ratel:v21.12.0
+
+Step 2. Open in browser
+http://localhost:8050
+
+Try http://127.0.0.1:8050
+
+
+push the rdf file 
+
+curl -X POST "localhost:8180/mutate?commitNow=true"      -H "Content-Type: application/rdf"      --data-binary @/home/anish/Desktop/html_section/judgments_mutation.rdf
+
+-----schemas (1) file push curl
+
+curl -X POST localhost:8180/alter -d '                                                                                                 
+type Judgment {
+  judgment_id
+  title
+  cites
+}
+
+judgment_id: string @index(exact) @upsert .
+title: string @index(fulltext, term) .
+cites: [uid] @reverse .
+'
+
+
+----- schema for reverse querry 
+curl -X POST localhost:8180/alter -d '
+type Judgment {
+  judgment_id
+  title
+  cites
+}
+
+judgment_id: string @index(exact) @upsert .
+title: string @index(exact, term, fulltext) .
+cites: [uid] @reverse .
+'
+
+------- reverse querry
+{
+  citingJudgments(func: eq(title, "M.C. Mehta v. Kamal Nath [2000] Supp. 1 SCR 389 : (2000) 6 SCC 213")) {
+    uid
+    judgment_id
+    title
+    ~cites {
+      uid
+      judgment_id
+      title
+    }
+  }
+}'
+
+-----with doc_id and year
+
+{
+  citingJudgments(func: eq(title, "M.C. Mehta v. Kamal Nath [2000] Supp. 1 SCR 389 : (2000) 6 SCC 213")) {
+    uid
+    judgment_id
+    title
+    doc_id        # ← NEW FIELD
+    year          # ← NEW FIELD
+    ~cites {
+      uid
+      judgment_id
+      title
+      doc_id      # ← NEW FIELD (if available in citing judgments)
+      year        # ← NEW FIELD (if available in citing judgments)
+    }
+  }
+}
+
+------querry to see all node 
+{
+  allJudgments(func: type(Judgment)) {
+    uid
+    judgment_id
+    node_name: title   # full judgment title as node name
+    title              # original title
+    cites {
+      uid
+      judgment_id
+      node_name: title  # full title of cited judgment
+      title
+    }
+  }
+}
+--------count how many node 
+{
+  allJudgments(func: type(Judgment)) {
+ 	count(uid)
+}
+}
+
+--------all connected node with respect to perticuler node
+
+{
+  allJudgments(func: type(Judgment)) @filter(eq(title, "M/s Rewa Tollway P. Ltd. v. The State of Madhya Pradesh & Ors.")) {
+    uid
+    judgment_id
+    node_name: title   # full judgment title as node name
+    title              # original title
+    cites {
+      uid
+      judgment_id
+      node_name: title  # full title of cited judgment
+      title
+    }
+  }
+}
+
+curl -X POST localhost:8180/alter -d '                                                                                                 
+type Judgment {
+  judgment_id
+  title
+  doc_id
+  year
+  cites
+}
+
+judgment_id: string @index(exact) @upsert .
+title: string @index(exact, term, fulltext) .
+doc_id: string @index(exact) .
+year: int @index(int) .
+cites: [uid] @reverse .
+'
+
+------------forward querry all
+
+{
+  allJudgments(func: type(Judgment)) {
+    uid
+    judgment_id
+    node_name: title
+    title
+    doc_id
+    year
+    cites {
+      uid
+      judgment_id
+      node_name: title
+      title
+    }
+  }
+}
+
+{
+  countJudgments(func: type(Judgment)) {
+    total: count(uid)
+  }
+}
+
+./upsert_mutations_no_citation_duplicates/upload_all.sh
+
+------------ COMPREHENSIVE QUERY: ALL NODES CONNECTED TO A SPECIFIC TITLE WITH DETAILS ------------
+
