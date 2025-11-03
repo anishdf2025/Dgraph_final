@@ -4,6 +4,32 @@ type Judgment {
   doc_id
   year
   cites
+  judged_by
+  petitioner_represented_by
+  respondant_represented_by
+  has_outcome
+  has_case_duration
+}
+
+type Judge {
+  judge_id
+  name
+}
+
+type Advocate {
+  advocate_id
+  name
+  advocate_type
+}
+
+type Outcome {
+  outcome_id
+  name
+}
+
+type CaseDuration {
+  case_duration_id
+  duration
 }
 
 judgment_id: string @index(exact) .
@@ -11,3 +37,15 @@ title: string @index(exact, term, fulltext) @upsert .
 doc_id: string @index(exact) @upsert .
 year: int @index(int) .
 cites: [uid] @reverse .
+judged_by: [uid] @reverse .
+petitioner_represented_by: [uid] @reverse .
+respondant_represented_by: [uid] @reverse .
+has_outcome: uid @reverse .
+has_case_duration: uid @reverse .
+judge_id: string @index(exact) .
+name: string @index(exact, term, fulltext) @upsert .
+advocate_id: string @index(exact) .
+advocate_type: string @index(exact) .
+outcome_id: string @index(exact) .
+case_duration_id: string @index(exact) .
+duration: string @index(exact, term) .
