@@ -291,7 +291,7 @@ class ModularRDFGenerator:
             
             with open(output_file, "w", encoding="utf-8") as f:
                 for line in self.rdf_lines:
-                    f.write(line + "\\n")
+                    f.write(line + "\n")
             
             self.logger.info(f"✅ RDF file written successfully")
             
@@ -314,7 +314,7 @@ class ModularRDFGenerator:
         print_processing_summary(stats_dict, self.output_config['rdf_file'])
         
         # Print modular handler statistics
-        print("\\n" + "=" * 70)
+        print("\n" + "=" * 70)
         print("📊 MODULAR HANDLER STATISTICS")
         print("=" * 70)
         print(f"👨‍⚖️ Judge relationships: {self.stats.judge_relationships}")
