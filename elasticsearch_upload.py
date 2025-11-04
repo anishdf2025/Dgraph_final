@@ -198,23 +198,94 @@ class ElasticsearchUploader:
         
         return mapping
     
-    def _create_index(self) -> None:
-        """Create the Elasticsearch index with proper mapping."""
+    def _create_index_if_not_exists(self) -> None:
+        """Create the Elasticsearch index with proper mapping only if it doesn't exist."""
         try:
-            # Delete index if it exists
+            # Check if index exists
             if self.es.indices.exists(index=self.index_name):
-                logger.info(f"🗑️ Deleting existing index: {self.index_name}")
-                self.es.indices.delete(index=self.index_name)
+                logger.info(f"✅ Index already exists: {self.index_name}")
+                # Get existing document count
+                doc_count = self.es.count(index=self.index_name)['count']
+                logger.info(f"📊 Existing documents in index: {doc_count}")
+                return
             
             # Create new index with mapping
+            logger.info(f"🔨 Creating new index: {self.index_name}")
             mapping = self._create_index_mapping()
             self.es.indices.create(index=self.index_name, body=mapping)
-            logger.info(f"✅ Created index: {self.index_name}")
+            logger.info(f"✅ Created new index: {self.index_name}")
             
         except Exception as e:
             logger.error(f"❌ Failed to create index: {e}")
             raise
     
+    def _get_existing_doc_ids(self) -> set:
+        """Get set of existing document IDs in the index."""
+        try:
+            if not self.es.indices.exists(index=self.index_name):
+                return set()
+            
+            # Get all existing document IDs
+            existing_ids = set()
+            
+            # Use scroll API to get all document IDs efficiently
+            query = {
+                "_source": False,  # We only need the IDs
+                "query": {"match_all": {}},
+                "size": 1000
+            }
+            
+            response = self.es.search(index=self.index_name, body=query, scroll='1m')
+            scroll_id = response['_scroll_id']
+            
+            # Get first batch
+            for hit in response['hits']['hits']:
+                existing_ids.add(hit['_id'])
+            
+            # Continue scrolling for remaining documents
+            while len(response['hits']['hits']):
+                response = self.es.scroll(scroll_id=scroll_id, scroll='1m')
+                for hit in response['hits']['hits']:
+                    existing_ids.add(hit['_id'])
+            
+            # Clear scroll context
+            self.es.clear_scroll(scroll_id=scroll_id)
+            
+            logger.info(f"📋 Found {len(existing_ids)} existing documents in index")
+            return existing_ids
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to get existing document IDs: {e}")
+            return set()
+
+    def _filter_new_documents(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Filter out documents that already exist in Elasticsearch."""
+        try:
+            existing_ids = self._get_existing_doc_ids()
+            
+            if not existing_ids:
+                logger.info("📝 No existing documents found, all documents will be added")
+                return df
+            
+            # Filter out existing documents
+            new_docs_mask = ~df['doc_id'].isin(existing_ids)
+            new_df = df[new_docs_mask].copy()
+            
+            total_docs = len(df)
+            existing_docs = total_docs - len(new_df)
+            
+            logger.info(f"📊 Document analysis:")
+            logger.info(f"   • Total documents in Excel: {total_docs}")
+            logger.info(f"   • Already exist in Elasticsearch: {existing_docs}")
+            logger.info(f"   • New documents to add: {len(new_df)}")
+            
+            return new_df
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to filter documents: {e}")
+            # Return original DataFrame as fallback
+            return df
+
     def _load_excel_data(self) -> pd.DataFrame:
         """Load and validate Excel data."""
         try:
@@ -230,7 +301,7 @@ class ElasticsearchUploader:
         except Exception as e:
             logger.error(f"❌ Failed to load Excel file: {e}")
             raise
-    
+
     def _prepare_document(self, row: pd.Series, row_number: int) -> Dict[str, Any]:
         """
         Prepare a document for Elasticsearch indexing.
@@ -305,15 +376,22 @@ class ElasticsearchUploader:
                 "_source": doc
             }
     
-    def _upload_documents(self, df: pd.DataFrame) -> None:
+    def _upload_documents(self, df: pd.DataFrame) -> int:
         """
         Upload documents to Elasticsearch using bulk API.
         
         Args:
             df: DataFrame containing Excel data
+            
+        Returns:
+            Number of documents successfully uploaded
         """
         try:
-            logger.info(f"📤 Starting bulk upload to index: {self.index_name}")
+            if df.empty:
+                logger.info("📝 No new documents to upload")
+                return 0
+            
+            logger.info(f"📤 Starting bulk upload of {len(df)} documents to index: {self.index_name}")
             
             # Use bulk helper for efficient uploading
             success_count, failed_items = bulk(
@@ -323,27 +401,36 @@ class ElasticsearchUploader:
                 request_timeout=30
             )
             
-            logger.info(f"✅ Successfully uploaded {success_count} documents")
+            logger.info(f"✅ Successfully uploaded {success_count} new documents")
             
             if failed_items:
                 logger.warning(f"⚠️ Failed to upload {len(failed_items)} documents")
                 for item in failed_items[:5]:  # Show first 5 failures
                     logger.warning(f"Failed item: {item}")
             
+            return success_count
+            
         except Exception as e:
             logger.error(f"❌ Failed to upload documents: {e}")
             raise
     
-    def _print_summary(self, df: pd.DataFrame) -> None:
+    def _print_summary(self, original_df: pd.DataFrame, new_docs_uploaded: int) -> None:
         """Print upload summary and query examples."""
-        doc_count = self.es.count(index=self.index_name)['count']
+        # Add a small delay to ensure count is updated
+        import time
+        time.sleep(0.5)
+        
+        total_doc_count = self.es.count(index=self.index_name)['count']
         
         print("\n" + "=" * 70)
-        print(f"✅ Data uploaded successfully to Elasticsearch!")
+        print(f"✅ Elasticsearch upload completed!")
         print(f"🔗 Elasticsearch URL: {self.es_host}")
         print(f"📁 Index name: {self.index_name}")
-        print(f"📊 Total documents: {doc_count}")
-        print(f"📄 Source rows: {len(df)}")
+        print("=" * 70)
+        print(f"📊 Upload Statistics:")
+        print(f"   • Documents in Excel file: {len(original_df)}")
+        print(f"   • New documents uploaded: {new_docs_uploaded}")
+        print(f"   • Total documents in index: {total_doc_count}")
         print("=" * 70)
         print("🔍 Example queries:")
         print(f"   • All documents: GET {self.es_host}/{self.index_name}/_search")
@@ -357,22 +444,28 @@ class ElasticsearchUploader:
     
     def upload_to_elasticsearch(self) -> None:
         """
-        Main method to upload Excel data to Elasticsearch.
+        Main method to upload Excel data to Elasticsearch (append-only mode).
         """
         try:
             # Load Excel data
-            df = self._load_excel_data()
+            original_df = self._load_excel_data()
             
-            # Create index with mapping
-            self._create_index()
+            # Create index if it doesn't exist (don't delete existing data)
+            self._create_index_if_not_exists()
             
-            # Upload documents
-            self._upload_documents(df)
+            # Filter out documents that already exist
+            new_df = self._filter_new_documents(original_df)
+            
+            # Upload only new documents
+            uploaded_count = self._upload_documents(new_df)
             
             # Print summary
-            self._print_summary(df)
+            self._print_summary(original_df, uploaded_count)
             
-            logger.info("🎉 Elasticsearch upload completed successfully!")
+            if uploaded_count > 0:
+                logger.info(f"🎉 Successfully uploaded {uploaded_count} new documents!")
+            else:
+                logger.info("✅ No new documents to upload - all documents already exist!")
             
         except Exception as e:
             logger.error(f"💥 Elasticsearch upload failed: {e}")
