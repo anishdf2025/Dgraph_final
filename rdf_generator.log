@@ -961,3 +961,57 @@
 2025-11-03 16:42:48,799 - INFO - 💾 Writing RDF file: judgments.rdf
 2025-11-03 16:42:48,799 - INFO - ✅ RDF file written successfully
 2025-11-03 16:42:48,799 - INFO - 🎉 RDF generation completed successfully!
+2025-11-03 17:52:35,521 - INFO - HEAD http://localhost:9200/ [status:200 duration:0.003s]
+2025-11-03 17:52:35,556 - INFO - HEAD http://localhost:9200/graphdb_copy [status:200 duration:0.002s]
+2025-11-03 17:52:35,559 - INFO - ✅ Connected to Elasticsearch at http://localhost:9200
+2025-11-03 17:52:35,559 - INFO - 🚀 RDF Generator initialized with Elasticsearch backend
+2025-11-03 17:52:35,559 - INFO - 🔄 Starting RDF generation process...
+2025-11-03 17:52:35,559 - INFO - 📖 Loading data from Elasticsearch index: graphdb_copy
+2025-11-03 17:52:35,562 - INFO - POST http://localhost:9200/graphdb_copy/_search [status:200 duration:0.003s]
+2025-11-03 17:52:35,564 - INFO - ✅ Loaded 4 documents from Elasticsearch
+2025-11-03 17:52:35,564 - INFO - 🔄 First pass: Collecting judgment data and building mappings...
+2025-11-03 17:52:35,565 - INFO - ✅ Collected 4 judgments and built mappings
+2025-11-03 17:52:35,565 - INFO - 🔄 Second pass: Processing judgments and creating relationships...
+2025-11-03 17:52:35,565 - INFO - ✓ Processing judgment 1: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-03 17:52:35,565 - INFO - 📄 Created judge node: judge1 for 'Justice D. Y. Chandrachud...'
+2025-11-03 17:52:35,565 - INFO - 📄 Created judge node: judge2 for 'Justice Sanjay Kishan Kaul...'
+2025-11-03 17:52:35,565 - INFO - 📄 Created judge node: judge3 for 'Justice Indu Malhotra...'
+2025-11-03 17:52:35,565 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate1 for 'Mr. Mukul Rohatgi...'
+2025-11-03 17:52:35,565 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate2 for 'Ms. Meenakshi Arora...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created respondant_advocate node: respondant_advocate1 for 'Mr. Tushar Mehta...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created respondant_advocate node: respondant_advocate2 for 'Mr. Aman Lekhi...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created outcome node: outcome1 for 'Petitioner Won...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created case_duration node: case_duration1 for '2019-03-15 to 2019-11-18...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created citation node: c1 for 'State of Uttarakhand and Ors. v. Harpal Singh Rawa...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created citation node: c2 for 'Nasiruddin and another v. State of Uttar Pradesh T...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created citation node: c3 for 'Paramjeet Batra v. State of Uttarakhand (2013) 11 ...'
+2025-11-03 17:52:35,566 - INFO - ✓ Processing judgment 2: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-03 17:52:35,566 - INFO - 📄 Created judge node: judge4 for 'Justice R. Banumathi...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created judge node: judge5 for 'Justice V. Ramasubramanian...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created judge node: judge6 for 'Justice Bela M. Trivedi...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate3 for 'Mr. Abhishek Manu Singhvi...'
+2025-11-03 17:52:35,566 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate4 for 'Ms. Karuna Nundy...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created respondant_advocate node: respondant_advocate3 for 'Mr. K. K. Venugopal...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created case_duration node: case_duration2 for '2021-01-05 to 2021-06-30...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created citation node: c4 for 'Mohd. Yusuf v. Rajkumar [2020] 3 SCR 649 : (2020) ...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created citation node: c5 for 'Ravinder Kaur Grewal and Others v. Manjit Kaur and...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created citation node: c6 for 'Khushi Ram v. Nawal Singh [2021] 4 SCR 1019 : (202...'
+2025-11-03 17:52:35,567 - INFO - ✓ Processing judgment 3: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-03 17:52:35,567 - INFO - 📄 Created judge node: judge7 for 'Justice Krishna Murari...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created judge node: judge8 for 'Justice P. S. Narasimha...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created judge node: judge9 for 'Justice Aniruddha Bose...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate5 for 'Mr. Sidharth Luthra...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created respondant_advocate node: respondant_advocate4 for 'Mr. Maninder Singh...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created respondant_advocate node: respondant_advocate5 for 'Mr. Vikramjit Banerjee...'
+2025-11-03 17:52:35,567 - INFO - 📄 Created case_duration node: case_duration3 for '2022-02-11 to 2022-09-21...'
+2025-11-03 17:52:35,568 - INFO - ✓ Processing judgment 4: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-03 17:52:35,568 - INFO - 📄 Created judge node: judge10 for 'Justice U. U. Lalit...'
+2025-11-03 17:52:35,568 - INFO - 📄 Created judge node: judge11 for 'Justice Hemant Gupta...'
+2025-11-03 17:52:35,568 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate6 for 'Mr. Kapil Sibal...'
+2025-11-03 17:52:35,568 - INFO - 📄 Created respondant_advocate node: respondant_advocate6 for 'Mr. Harish Salve...'
+2025-11-03 17:52:35,568 - INFO - 📄 Created respondant_advocate node: respondant_advocate7 for 'Mr. Gopal Subramanium...'
+2025-11-03 17:52:35,568 - INFO - 📄 Created outcome node: outcome2 for 'Respondent Won...'
+2025-11-03 17:52:35,568 - INFO - 📄 Created case_duration node: case_duration4 for '2020-07-22 to 2021-08-18...'
+2025-11-03 17:52:35,568 - INFO - 💾 Writing RDF file: judgments.rdf
+2025-11-03 17:52:35,569 - INFO - ✅ RDF file written successfully
+2025-11-03 17:52:35,569 - INFO - 🎉 RDF generation completed successfully!

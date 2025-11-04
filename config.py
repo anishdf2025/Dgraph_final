@@ -23,7 +23,7 @@ class Config:
     
     # Elasticsearch Configuration
     ELASTICSEARCH_HOST: str = os.getenv('ELASTICSEARCH_HOST', 'http://localhost:9200')
-    ELASTICSEARCH_INDEX: str = os.getenv('ELASTICSEARCH_INDEX', 'graphdb')
+    ELASTICSEARCH_INDEX: str = os.getenv('ELASTICSEARCH_INDEX', 'graphdb_copy')
     ELASTICSEARCH_TIMEOUT: int = int(os.getenv('ELASTICSEARCH_TIMEOUT', '30'))
     
     # Dgraph Configuration

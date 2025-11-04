@@ -105,211 +105,80 @@
 <c6> <dgraph.type> "Judgment" .
 <j2> <cites> <c6> .
 <j3> <judgment_id> "j3" .
-<j3> <title> "Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Prime Corporation Private Limited" .
-<j3> <doc_id> "-NYX55cBQhmfz2WX115c" .
+<j3> <title> "Amit Rana @ Koka & Anr. v. The State of Haryana" .
+<j3> <doc_id> "-dYY55cBQhmfz2WXBF6y" .
 <j3> <dgraph.type> "Judgment" .
 <j3> <year> "2024" .
 <judge7> <judge_id> "judge7" .
-<judge7> <name> "Justice A. S. Bopanna" .
+<judge7> <name> "Justice Krishna Murari" .
 <judge7> <dgraph.type> "Judge" .
 <j3> <judged_by> <judge7> .
 <judge8> <judge_id> "judge8" .
-<judge8> <name> "Justice S. Abdul Nazeer" .
+<judge8> <name> "Justice P. S. Narasimha" .
 <judge8> <dgraph.type> "Judge" .
 <j3> <judged_by> <judge8> .
+<judge9> <judge_id> "judge9" .
+<judge9> <name> "Justice Aniruddha Bose" .
+<judge9> <dgraph.type> "Judge" .
+<j3> <judged_by> <judge9> .
 <petitioner_advocate5> <advocate_id> "petitioner_advocate5" .
-<petitioner_advocate5> <name> "Mr. Shyam Divan" .
+<petitioner_advocate5> <name> "Mr. Sidharth Luthra" .
 <petitioner_advocate5> <advocate_type> "Petitioner" .
 <petitioner_advocate5> <dgraph.type> "Advocate" .
 <j3> <petitioner_represented_by> <petitioner_advocate5> .
 <respondant_advocate4> <advocate_id> "respondant_advocate4" .
-<respondant_advocate4> <name> "Ms. Pinky Anand" .
+<respondant_advocate4> <name> "Mr. Maninder Singh" .
 <respondant_advocate4> <advocate_type> "Respondant" .
 <respondant_advocate4> <dgraph.type> "Advocate" .
 <j3> <respondant_represented_by> <respondant_advocate4> .
 <respondant_advocate5> <advocate_id> "respondant_advocate5" .
-<respondant_advocate5> <name> "Mr. Rakesh Dwivedi" .
+<respondant_advocate5> <name> "Mr. Vikramjit Banerjee" .
 <respondant_advocate5> <advocate_type> "Respondant" .
 <respondant_advocate5> <dgraph.type> "Advocate" .
 <j3> <respondant_represented_by> <respondant_advocate5> .
-<outcome2> <outcome_id> "outcome2" .
-<outcome2> <name> "Respondent Won" .
-<outcome2> <dgraph.type> "Outcome" .
-<j3> <has_outcome> <outcome2> .
+<j3> <has_outcome> <outcome1> .
 <case_duration3> <case_duration_id> "case_duration3" .
-<case_duration3> <duration> "2020-04-10 to 2021-01-24" .
+<case_duration3> <duration> "2022-02-11 to 2022-09-21" .
 <case_duration3> <dgraph.type> "CaseDuration" .
 <j3> <has_case_duration> <case_duration3> .
-<c7> <judgment_id> "c7" .
-<c7> <title> "Nanda Dulal Pradhan & Anr. v. Dibakar Pradhan & Anr. [2022] 7 SCR 483 : 2022 SCC OnLine SC 822" .
-<c7> <dgraph.type> "Judgment" .
-<j3> <cites> <c7> .
-<c8> <judgment_id> "c8" .
-<c8> <title> "Nalini Sunder v. GV Sunder AIR 2003 Kar 86" .
-<c8> <dgraph.type> "Judgment" .
-<j3> <cites> <c8> .
-<c9> <judgment_id> "c9" .
-<c9> <title> "R.V. Prasannakumaar & others. v. Mantri Castles Private Limited & Another [2019] 5 SCR 821 : (2020) 14 SCC 769" .
-<c9> <dgraph.type> "Judgment" .
-<j3> <cites> <c9> .
+<j3> <cites> <c1> .
+<j3> <cites> <j1> .
 <j4> <judgment_id> "j4" .
-<j4> <title> "Shahid Ali v. The State of Uttar Pradesh" .
-<j4> <doc_id> "-NZS55cBQhmfz2WXXV-l" .
+<j4> <title> "Dr Sonia Verma & Anr. v. The State of Haryana & Anr." .
+<j4> <doc_id> "-9ZS55cBQhmfz2WX9V9b" .
 <j4> <dgraph.type> "Judgment" .
 <j4> <year> "2024" .
-<judge9> <judge_id> "judge9" .
-<judge9> <name> "Justice Hima Kohli" .
-<judge9> <dgraph.type> "Judge" .
-<j4> <judged_by> <judge9> .
 <judge10> <judge_id> "judge10" .
-<judge10> <name> "Justice J. B. Pardiwala" .
+<judge10> <name> "Justice U. U. Lalit" .
 <judge10> <dgraph.type> "Judge" .
 <j4> <judged_by> <judge10> .
 <judge11> <judge_id> "judge11" .
-<judge11> <name> "Justice Surya Kant" .
+<judge11> <name> "Justice Hemant Gupta" .
 <judge11> <dgraph.type> "Judge" .
 <j4> <judged_by> <judge11> .
+<j4> <judged_by> <judge1> .
 <petitioner_advocate6> <advocate_id> "petitioner_advocate6" .
-<petitioner_advocate6> <name> "Mr. Arvind Datar" .
+<petitioner_advocate6> <name> "Mr. Kapil Sibal" .
 <petitioner_advocate6> <advocate_type> "Petitioner" .
 <petitioner_advocate6> <dgraph.type> "Advocate" .
 <j4> <petitioner_represented_by> <petitioner_advocate6> .
-<petitioner_advocate7> <advocate_id> "petitioner_advocate7" .
-<petitioner_advocate7> <name> "Ms. Aparajita Singh" .
-<petitioner_advocate7> <advocate_type> "Petitioner" .
-<petitioner_advocate7> <dgraph.type> "Advocate" .
-<j4> <petitioner_represented_by> <petitioner_advocate7> .
 <respondant_advocate6> <advocate_id> "respondant_advocate6" .
-<respondant_advocate6> <name> "Mr. Ranjit Kumar" .
+<respondant_advocate6> <name> "Mr. Harish Salve" .
 <respondant_advocate6> <advocate_type> "Respondant" .
 <respondant_advocate6> <dgraph.type> "Advocate" .
 <j4> <respondant_represented_by> <respondant_advocate6> .
-<j4> <has_outcome> <outcome1> .
-<case_duration4> <case_duration_id> "case_duration4" .
-<case_duration4> <duration> "2018-09-12 to 2019-07-19" .
-<case_duration4> <dgraph.type> "CaseDuration" .
-<j4> <has_case_duration> <case_duration4> .
-<c10> <judgment_id> "c10" .
-<c10> <title> "Kunwar Pal Singh v. State of Uttarakhand, (2014) 12 SCC 434" .
-<c10> <dgraph.type> "Judgment" .
-<j4> <cites> <c10> .
-<c11> <judgment_id> "c11" .
-<c11> <title> "Bhagwan Singh v. State of Uttarakhand, (2020) 14 SCC 184" .
-<c11> <dgraph.type> "Judgment" .
-<j4> <cites> <c11> .
-<j5> <judgment_id> "j5" .
-<j5> <title> "Shri Mukund Bhavan Trust and Ors. v. Shrimant Chhatrapati Udayan Raje Pratapsinh Maharaj Bhonsle and Another" .
-<j5> <doc_id> "-NZb5JcBQhmfz2WXBVy9" .
-<j5> <dgraph.type> "Judgment" .
-<j5> <year> "2024" .
-<judge12> <judge_id> "judge12" .
-<judge12> <name> "Justice K. M. Joseph" .
-<judge12> <dgraph.type> "Judge" .
-<j5> <judged_by> <judge12> .
-<judge13> <judge_id> "judge13" .
-<judge13> <name> "Justice B. R. Gavai" .
-<judge13> <dgraph.type> "Judge" .
-<j5> <judged_by> <judge13> .
-<petitioner_advocate8> <advocate_id> "petitioner_advocate8" .
-<petitioner_advocate8> <name> "Mr. C. A. Sundaram" .
-<petitioner_advocate8> <advocate_type> "Petitioner" .
-<petitioner_advocate8> <dgraph.type> "Advocate" .
-<j5> <petitioner_represented_by> <petitioner_advocate8> .
 <respondant_advocate7> <advocate_id> "respondant_advocate7" .
-<respondant_advocate7> <name> "Mr. P. S. Narasimha" .
+<respondant_advocate7> <name> "Mr. Gopal Subramanium" .
 <respondant_advocate7> <advocate_type> "Respondant" .
 <respondant_advocate7> <dgraph.type> "Advocate" .
-<j5> <respondant_represented_by> <respondant_advocate7> .
-<respondant_advocate8> <advocate_id> "respondant_advocate8" .
-<respondant_advocate8> <name> "Ms. Madhavi Divan" .
-<respondant_advocate8> <advocate_type> "Respondant" .
-<respondant_advocate8> <dgraph.type> "Advocate" .
-<j5> <respondant_represented_by> <respondant_advocate8> .
-<j5> <has_outcome> <outcome2> .
-<case_duration5> <case_duration_id> "case_duration5" .
-<case_duration5> <duration> "2019-11-10 to 2021-01-29" .
-<case_duration5> <dgraph.type> "CaseDuration" .
-<j5> <has_case_duration> <case_duration5> .
-<c12> <judgment_id> "c12" .
-<c12> <title> "T. Arivandandam v. T.V. Satyapal [1978] 1 SCR 742 : (1977) 4 SCC 467 - held applicable." .
-<c12> <dgraph.type> "Judgment" .
-<j5> <cites> <c12> .
-<c13> <judgment_id> "c13" .
-<c13> <title> "Satti Paradesi Samadhi & Pillayar Temple v. M. Sankuntala [2014] 9 SCR 221 : (2015) 5 SCC 674" .
-<c13> <dgraph.type> "Judgment" .
-<j5> <cites> <c13> .
-<j6> <judgment_id> "j6" .
-<j6> <title> "Amit Rana @ Koka & Anr. v. The State of Haryana" .
-<j6> <doc_id> "-dYY55cBQhmfz2WXBF6y" .
-<j6> <dgraph.type> "Judgment" .
-<j6> <year> "2024" .
-<judge14> <judge_id> "judge14" .
-<judge14> <name> "Justice Krishna Murari" .
-<judge14> <dgraph.type> "Judge" .
-<j6> <judged_by> <judge14> .
-<judge15> <judge_id> "judge15" .
-<judge15> <name> "Justice P. S. Narasimha" .
-<judge15> <dgraph.type> "Judge" .
-<j6> <judged_by> <judge15> .
-<judge16> <judge_id> "judge16" .
-<judge16> <name> "Justice Aniruddha Bose" .
-<judge16> <dgraph.type> "Judge" .
-<j6> <judged_by> <judge16> .
-<petitioner_advocate9> <advocate_id> "petitioner_advocate9" .
-<petitioner_advocate9> <name> "Mr. Sidharth Luthra" .
-<petitioner_advocate9> <advocate_type> "Petitioner" .
-<petitioner_advocate9> <dgraph.type> "Advocate" .
-<j6> <petitioner_represented_by> <petitioner_advocate9> .
-<respondant_advocate9> <advocate_id> "respondant_advocate9" .
-<respondant_advocate9> <name> "Mr. Maninder Singh" .
-<respondant_advocate9> <advocate_type> "Respondant" .
-<respondant_advocate9> <dgraph.type> "Advocate" .
-<j6> <respondant_represented_by> <respondant_advocate9> .
-<respondant_advocate10> <advocate_id> "respondant_advocate10" .
-<respondant_advocate10> <name> "Mr. Vikramjit Banerjee" .
-<respondant_advocate10> <advocate_type> "Respondant" .
-<respondant_advocate10> <dgraph.type> "Advocate" .
-<j6> <respondant_represented_by> <respondant_advocate10> .
-<j6> <has_outcome> <outcome1> .
-<case_duration6> <case_duration_id> "case_duration6" .
-<case_duration6> <duration> "2022-02-11 to 2022-09-21" .
-<case_duration6> <dgraph.type> "CaseDuration" .
-<j6> <has_case_duration> <case_duration6> .
-<j6> <cites> <c1> .
-<j6> <cites> <j1> .
-<j7> <judgment_id> "j7" .
-<j7> <title> "Dr Sonia Verma & Anr. v. The State of Haryana & Anr." .
-<j7> <doc_id> "-9ZS55cBQhmfz2WX9V9b" .
-<j7> <dgraph.type> "Judgment" .
-<j7> <year> "2024" .
-<judge17> <judge_id> "judge17" .
-<judge17> <name> "Justice U. U. Lalit" .
-<judge17> <dgraph.type> "Judge" .
-<j7> <judged_by> <judge17> .
-<judge18> <judge_id> "judge18" .
-<judge18> <name> "Justice Hemant Gupta" .
-<judge18> <dgraph.type> "Judge" .
-<j7> <judged_by> <judge18> .
-<j7> <judged_by> <judge1> .
-<petitioner_advocate10> <advocate_id> "petitioner_advocate10" .
-<petitioner_advocate10> <name> "Mr. Kapil Sibal" .
-<petitioner_advocate10> <advocate_type> "Petitioner" .
-<petitioner_advocate10> <dgraph.type> "Advocate" .
-<j7> <petitioner_represented_by> <petitioner_advocate10> .
-<respondant_advocate11> <advocate_id> "respondant_advocate11" .
-<respondant_advocate11> <name> "Mr. Harish Salve" .
-<respondant_advocate11> <advocate_type> "Respondant" .
-<respondant_advocate11> <dgraph.type> "Advocate" .
-<j7> <respondant_represented_by> <respondant_advocate11> .
-<respondant_advocate12> <advocate_id> "respondant_advocate12" .
-<respondant_advocate12> <name> "Mr. Gopal Subramanium" .
-<respondant_advocate12> <advocate_type> "Respondant" .
-<respondant_advocate12> <dgraph.type> "Advocate" .
-<j7> <respondant_represented_by> <respondant_advocate12> .
-<j7> <has_outcome> <outcome2> .
-<case_duration7> <case_duration_id> "case_duration7" .
-<case_duration7> <duration> "2020-07-22 to 2021-08-18" .
-<case_duration7> <dgraph.type> "CaseDuration" .
-<j7> <has_case_duration> <case_duration7> .
-<j7> <cites> <c3> .
-<j7> <cites> <j7> .
+<j4> <respondant_represented_by> <respondant_advocate7> .
+<outcome2> <outcome_id> "outcome2" .
+<outcome2> <name> "Respondent Won" .
+<outcome2> <dgraph.type> "Outcome" .
+<j4> <has_outcome> <outcome2> .
+<case_duration4> <case_duration_id> "case_duration4" .
+<case_duration4> <duration> "2020-07-22 to 2021-08-18" .
+<case_duration4> <dgraph.type> "CaseDuration" .
+<j4> <has_case_duration> <case_duration4> .
+<j4> <cites> <c3> .
+<j4> <cites> <j4> .
