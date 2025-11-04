@@ -3,9 +3,6 @@
 Utilities for Legal Judgment Database
 
 This module contains utility functions and helper methods used throughout the application.
-
-Author: Anish
-Date: November 2025
 """
 
 import logging
