@@ -2,7 +2,7 @@ import subprocess
 
 # Define the docker live loader command
 live_cmd = [
-    "sudo", "docker", "run", "--rm",
+    "docker", "run", "--rm",
     "--network", "dgraph-net",
     "-v", "/home/anish/Desktop/Anish/Dgraph_final:/data",
     "dgraph/dgraph:v23.1.0",

@@ -17,6 +17,7 @@ Date: November 2025
 """
 
 import sys
+import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -48,6 +49,7 @@ class ModularRDFGenerator:
         self.logger = setup_logging()
         self.es_handler = ElasticsearchHandler()
         self.output_config = config.get_output_config()
+        self.processing_config = config.get_processing_config()
         
         # Initialize relationship handlers
         self.judge_handler = JudgeRelationshipHandler()
@@ -68,7 +70,7 @@ class ModularRDFGenerator:
     
     def generate_rdf(self) -> None:
         """
-        Main method to generate RDF file using modular relationship handlers.
+        Main method to generate RDF file using modular relationship handlers and upload to Dgraph.
         
         Raises:
             Exception: If any step in the process fails
@@ -90,10 +92,16 @@ class ModularRDFGenerator:
             self._calculate_final_stats()
             self._write_rdf_file()
             
+            # Upload to Dgraph automatically if enabled
+            if self.processing_config.get('auto_upload', True):
+                self._upload_to_dgraph()
+            else:
+                self.logger.info("⏭️ Auto-upload disabled, skipping Dgraph upload")
+            
             # Print summary
             self._print_summary()
             
-            self.logger.info("🎉 Modular RDF generation completed successfully!")
+            self.logger.info("🎉 Modular RDF generation and upload completed successfully!")
             
         except Exception as e:
             self.logger.error(f"💥 Modular RDF generation failed: {e}")
@@ -299,6 +307,48 @@ class ModularRDFGenerator:
             self.logger.error(f"❌ Failed to write RDF file: {e}")
             raise
     
+    def _upload_to_dgraph(self) -> None:
+        """Upload RDF file to Dgraph using Docker Live Loader."""
+        try:
+            self.logger.info("🚀 Starting Dgraph Live Loader upload...")
+            
+            # Get the absolute path to the current directory
+            current_dir = Path.cwd().absolute()
+            
+            # Define the docker live loader command
+            live_cmd = [
+                "docker", "run", "--rm",
+                "--network", "dgraph-net",
+                "-v", f"{current_dir}:/data",
+                "dgraph/dgraph:v23.1.0",
+                "dgraph", "live",
+                "--files", "/data/judgments.rdf",
+                "--schema", "/data/rdf.schema",
+                "--alpha", "dgraph-standalone:9080",
+                "--zero", "dgraph-standalone:5080",
+                "--upsertPredicate", "judgment_id"
+            ]
+            
+            # Run the command
+            result = subprocess.run(live_cmd, capture_output=True, text=True, check=True)
+            
+            self.logger.info("✅ Data loaded successfully into Dgraph!")
+            self.logger.info(f"📤 Upload output: {result.stdout}")
+            
+            if result.stderr:
+                self.logger.warning(f"⚠️ Upload warnings: {result.stderr}")
+            
+        except subprocess.CalledProcessError as e:
+            self.logger.error(f"❌ Error occurred during Dgraph live load: {e}")
+            if e.stdout:
+                self.logger.error(f"📤 Stdout: {e.stdout}")
+            if e.stderr:
+                self.logger.error(f"📤 Stderr: {e.stderr}")
+            raise
+        except Exception as e:
+            self.logger.error(f"❌ Unexpected error during Dgraph upload: {e}")
+            raise
+    
     def _print_summary(self) -> None:
         """Print processing summary."""
         stats_dict = {
@@ -312,6 +362,24 @@ class ModularRDFGenerator:
         }
         
         print_processing_summary(stats_dict, self.output_config['rdf_file'])
+        
+        # Print upload success message if auto-upload is enabled
+        if self.processing_config.get('auto_upload', True):
+            print("\n" + "=" * 70)
+            print("🚀 DGRAPH UPLOAD COMPLETED")
+            print("=" * 70)
+            print("✅ RDF data has been automatically uploaded to Dgraph!")
+            print("📡 Data is now available in your Dgraph database")
+            print("=" * 70)
+        else:
+            print("\n" + "=" * 70)
+            print("📁 RDF FILE READY FOR MANUAL UPLOAD")
+            print("=" * 70)
+            print("📋 To upload manually, run:")
+            print("   python3 live_upload.py")
+            print("   OR")
+            print("   dgraph live --files judgments.rdf --schema rdf.schema")
+            print("=" * 70)
         
         # Print modular handler statistics
         print("\n" + "=" * 70)

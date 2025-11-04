@@ -41,6 +41,7 @@ class Config:
     # Processing Configuration
     MAX_DOCUMENTS: int = int(os.getenv('MAX_DOCUMENTS', '10000'))
     BATCH_SIZE: int = int(os.getenv('BATCH_SIZE', '100'))
+    AUTO_UPLOAD: bool = os.getenv('AUTO_UPLOAD', 'true').lower() == 'true'
     
     @classmethod
     def validate(cls) -> bool:
@@ -101,7 +102,8 @@ class Config:
         """Get processing configuration as a dictionary."""
         return {
             'max_documents': cls.MAX_DOCUMENTS,
-            'batch_size': cls.BATCH_SIZE
+            'batch_size': cls.BATCH_SIZE,
+            'auto_upload': cls.AUTO_UPLOAD
         }
 
 
