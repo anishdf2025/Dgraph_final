@@ -1015,3 +1015,772 @@
 2025-11-03 17:52:35,568 - INFO - 💾 Writing RDF file: judgments.rdf
 2025-11-03 17:52:35,569 - INFO - ✅ RDF file written successfully
 2025-11-03 17:52:35,569 - INFO - 🎉 RDF generation completed successfully!
+2025-11-04 11:13:05,069 - WARNING - GET http://localhost:9200/ [status:N/A request:0.000s]
+Traceback (most recent call last):
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/util/connection.py", line 95, in create_connection
+    raise err
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/anish/.local/lib/python3.10/site-packages/elasticsearch/connection/http_urllib3.py", line 255, in perform_request
+    response = self.pool.urlopen(
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 802, in urlopen
+    retries = retries.increment(
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/util/retry.py", line 527, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/packages/six.py", line 770, in reraise
+    raise value
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 716, in urlopen
+    httplib_response = self._make_request(
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 416, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/connection.py", line 244, in request
+    super(HTTPConnection, self).request(method, url, body=body, headers=headers)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/connection.py", line 205, in connect
+    conn = self._new_conn()
+  File "/home/anish/.local/lib/python3.10/site-packages/urllib3/connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7d5af88630a0>: Failed to establish a new connection: [Errno 111] Connection refused
+2025-11-04 11:13:05,072 - ERROR - ❌ Failed to connect to Elasticsearch: Cannot connect to Elasticsearch at http://localhost:9200
+2025-11-04 11:13:05,072 - ERROR - Application failed: Cannot connect to Elasticsearch at http://localhost:9200
+2025-11-04 11:15:12,403 - INFO - GET http://localhost:9200/ [status:200 request:0.003s]
+2025-11-04 11:15:12,405 - INFO - HEAD http://localhost:9200/ [status:200 request:0.001s]
+2025-11-04 11:15:12,407 - ERROR - Index 'graphdb_copy' does not exist
+2025-11-04 11:15:12,407 - ERROR - ❌ Failed to connect to Elasticsearch: Cannot connect to Elasticsearch at http://localhost:9200
+2025-11-04 11:15:12,407 - ERROR - Application failed: Cannot connect to Elasticsearch at http://localhost:9200
+2025-11-04 11:15:49,030 - INFO - GET http://localhost:9200/ [status:200 request:0.003s]
+2025-11-04 11:15:49,032 - INFO - HEAD http://localhost:9200/ [status:200 request:0.001s]
+2025-11-04 11:15:49,043 - INFO - HEAD http://localhost:9200/graphdb_copy [status:200 request:0.002s]
+2025-11-04 11:15:49,043 - INFO - ✅ Connected to Elasticsearch at http://localhost:9200
+2025-11-04 11:15:49,043 - INFO - 📋 Judge Relationship Handler initialized
+2025-11-04 11:15:49,043 - INFO - 👨‍💼 Advocate Relationship Handler initialized
+2025-11-04 11:15:49,043 - INFO - ⚖️ Outcome Relationship Handler initialized
+2025-11-04 11:15:49,044 - INFO - 📅 Case Duration Relationship Handler initialized
+2025-11-04 11:15:49,044 - INFO - 🔗 Citation Relationship Handler initialized
+2025-11-04 11:15:49,044 - INFO - 🚀 Modular RDF Generator initialized with separate relationship handlers
+2025-11-04 11:15:49,044 - INFO - 🔄 Starting modular RDF generation process...
+2025-11-04 11:15:49,044 - INFO - 📖 Loading data from Elasticsearch index: graphdb_copy
+2025-11-04 11:15:49,050 - INFO - POST http://localhost:9200/graphdb_copy/_search [status:200 request:0.006s]
+2025-11-04 11:15:49,052 - INFO - ✅ Loaded 7 documents from Elasticsearch
+2025-11-04 11:15:49,052 - INFO - 🔄 First pass: Collecting judgment data and building mappings...
+2025-11-04 11:15:49,054 - INFO - 📋 Updated title mapping with 7 judgments
+2025-11-04 11:15:49,054 - INFO - ✅ Collected 7 judgments and built mappings
+2025-11-04 11:15:49,054 - INFO - 🔄 Second pass: Processing judgments using modular relationship handlers...
+2025-11-04 11:15:49,054 - INFO - ✓ Processing judgment 1: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,054 - INFO - 🔄 Processing 3 judges for judgment: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,054 - INFO - 📄 Created judge node: judge1 for 'Justice D. Y. Chandrachud'
+2025-11-04 11:15:49,055 - INFO - ✓ Created judge relationship: j1 -> judge1
+2025-11-04 11:15:49,055 - INFO - 📄 Created judge node: judge2 for 'Justice Sanjay Kishan Kaul'
+2025-11-04 11:15:49,055 - INFO - ✓ Created judge relationship: j1 -> judge2
+2025-11-04 11:15:49,055 - INFO - 📄 Created judge node: judge3 for 'Justice Indu Malhotra'
+2025-11-04 11:15:49,055 - INFO - ✓ Created judge relationship: j1 -> judge3
+2025-11-04 11:15:49,055 - INFO - 🔄 Processing 2 petitioner advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,055 - INFO - 📄 Created petitioner advocate node: petitioner_advocate1 for 'Mr. Mukul Rohatgi'
+2025-11-04 11:15:49,055 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate1
+2025-11-04 11:15:49,055 - INFO - 📄 Created petitioner advocate node: petitioner_advocate2 for 'Ms. Meenakshi Arora'
+2025-11-04 11:15:49,055 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate2
+2025-11-04 11:15:49,055 - INFO - 🔄 Processing 2 respondant advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,056 - INFO - 📄 Created respondant advocate node: respondant_advocate1 for 'Mr. Tushar Mehta'
+2025-11-04 11:15:49,056 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate1
+2025-11-04 11:15:49,056 - INFO - 📄 Created respondant advocate node: respondant_advocate2 for 'Mr. Aman Lekhi'
+2025-11-04 11:15:49,056 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate2
+2025-11-04 11:15:49,056 - INFO - 🔄 Processing outcome 'Petitioner Won' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,056 - INFO - 📄 Created outcome node: outcome1 for 'Petitioner Won'
+2025-11-04 11:15:49,056 - INFO - ✓ Created outcome relationship: j1 -> outcome1
+2025-11-04 11:15:49,056 - INFO - 🔄 Processing case duration '2019-03-15 to 2019-11-18' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,056 - INFO - 📄 Created case duration node: case_duration1 for '2019-03-15 to 2019-11-18'
+2025-11-04 11:15:49,056 - INFO - ✓ Created case duration relationship: j1 -> case_duration1
+2025-11-04 11:15:49,056 - INFO - 🔄 Processing 3 citations for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,057 - INFO - 📄 Created citation node: c1 for 'State of Uttarakhand and Ors. v. Harpal Singh Rawa...'
+2025-11-04 11:15:49,057 - INFO - ✓ Created citation relationship: j1 -> c1
+2025-11-04 11:15:49,057 - INFO - 📄 Created citation node: c2 for 'Nasiruddin and another v. State of Uttar Pradesh T...'
+2025-11-04 11:15:49,057 - INFO - ✓ Created citation relationship: j1 -> c2
+2025-11-04 11:15:49,057 - INFO - 📄 Created citation node: c3 for 'Paramjeet Batra v. State of Uttarakhand (2013) 11 ...'
+2025-11-04 11:15:49,057 - INFO - ✓ Created citation relationship: j1 -> c3
+2025-11-04 11:15:49,057 - INFO - ✓ Processing judgment 2: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,057 - INFO - 🔄 Processing 2 judges for judgment: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,057 - INFO - 📄 Created judge node: judge4 for 'Justice U. U. Lalit'
+2025-11-04 11:15:49,057 - INFO - ✓ Created judge relationship: j2 -> judge4
+2025-11-04 11:15:49,057 - INFO - 📄 Created judge node: judge5 for 'Justice Hemant Gupta'
+2025-11-04 11:15:49,057 - INFO - ✓ Created judge relationship: j2 -> judge5
+2025-11-04 11:15:49,058 - INFO - 🔄 Processing 1 petitioner advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,058 - INFO - 📄 Created petitioner advocate node: petitioner_advocate3 for 'Mr. Kapil Sibal'
+2025-11-04 11:15:49,058 - INFO - ✓ Created petitioner advocate relationship: j2 -> petitioner_advocate3
+2025-11-04 11:15:49,058 - INFO - 🔄 Processing 2 respondant advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,058 - INFO - 📄 Created respondant advocate node: respondant_advocate3 for 'Mr. Harish Salve'
+2025-11-04 11:15:49,058 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate3
+2025-11-04 11:15:49,058 - INFO - 📄 Created respondant advocate node: respondant_advocate4 for 'Mr. Gopal Subramanium'
+2025-11-04 11:15:49,058 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate4
+2025-11-04 11:15:49,058 - INFO - 🔄 Processing outcome 'Respondent Won' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,058 - INFO - 📄 Created outcome node: outcome2 for 'Respondent Won'
+2025-11-04 11:15:49,058 - INFO - ✓ Created outcome relationship: j2 -> outcome2
+2025-11-04 11:15:49,058 - INFO - 🔄 Processing case duration '2020-07-22 to 2021-08-18' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,058 - INFO - 📄 Created case duration node: case_duration2 for '2020-07-22 to 2021-08-18'
+2025-11-04 11:15:49,059 - INFO - ✓ Created case duration relationship: j2 -> case_duration2
+2025-11-04 11:15:49,059 - INFO - 🔄 Processing 2 citations for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,059 - INFO - ✓ Created citation relationship: j2 -> c3
+2025-11-04 11:15:49,059 - INFO - ✓ Found title match - j2 -> j2
+2025-11-04 11:15:49,059 - INFO - ✓ Processing judgment 3: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,059 - INFO - 🔄 Processing 3 judges for judgment: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,059 - INFO - 📄 Created judge node: judge6 for 'Justice R. Banumathi'
+2025-11-04 11:15:49,059 - INFO - ✓ Created judge relationship: j3 -> judge6
+2025-11-04 11:15:49,059 - INFO - 📄 Created judge node: judge7 for 'Justice V. Ramasubramanian'
+2025-11-04 11:15:49,059 - INFO - ✓ Created judge relationship: j3 -> judge7
+2025-11-04 11:15:49,059 - INFO - 📄 Created judge node: judge8 for 'Justice Bela M. Trivedi'
+2025-11-04 11:15:49,059 - INFO - ✓ Created judge relationship: j3 -> judge8
+2025-11-04 11:15:49,059 - INFO - 🔄 Processing 2 petitioner advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,059 - INFO - 📄 Created petitioner advocate node: petitioner_advocate4 for 'Mr. Abhishek Manu Singhvi'
+2025-11-04 11:15:49,060 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate4
+2025-11-04 11:15:49,060 - INFO - 📄 Created petitioner advocate node: petitioner_advocate5 for 'Ms. Karuna Nundy'
+2025-11-04 11:15:49,060 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate5
+2025-11-04 11:15:49,060 - INFO - 🔄 Processing 1 respondant advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,060 - INFO - 📄 Created respondant advocate node: respondant_advocate5 for 'Mr. K. K. Venugopal'
+2025-11-04 11:15:49,060 - INFO - ✓ Created respondant advocate relationship: j3 -> respondant_advocate5
+2025-11-04 11:15:49,060 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,060 - INFO - ✓ Created outcome relationship: j3 -> outcome1
+2025-11-04 11:15:49,060 - INFO - 🔄 Processing case duration '2021-01-05 to 2021-06-30' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,060 - INFO - 📄 Created case duration node: case_duration3 for '2021-01-05 to 2021-06-30'
+2025-11-04 11:15:49,060 - INFO - ✓ Created case duration relationship: j3 -> case_duration3
+2025-11-04 11:15:49,060 - INFO - 🔄 Processing 3 citations for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,060 - INFO - 📄 Created citation node: c4 for 'Mohd. Yusuf v. Rajkumar [2020] 3 SCR 649 : (2020) ...'
+2025-11-04 11:15:49,060 - INFO - ✓ Created citation relationship: j3 -> c4
+2025-11-04 11:15:49,061 - INFO - 📄 Created citation node: c5 for 'Ravinder Kaur Grewal and Others v. Manjit Kaur and...'
+2025-11-04 11:15:49,061 - INFO - ✓ Created citation relationship: j3 -> c5
+2025-11-04 11:15:49,061 - INFO - 📄 Created citation node: c6 for 'Khushi Ram v. Nawal Singh [2021] 4 SCR 1019 : (202...'
+2025-11-04 11:15:49,061 - INFO - ✓ Created citation relationship: j3 -> c6
+2025-11-04 11:15:49,061 - INFO - ✓ Processing judgment 4: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,061 - INFO - 🔄 Processing 2 judges for judgment: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,061 - INFO - 📄 Created judge node: judge9 for 'Justice A. S. Bopanna'
+2025-11-04 11:15:49,061 - INFO - ✓ Created judge relationship: j4 -> judge9
+2025-11-04 11:15:49,061 - INFO - 📄 Created judge node: judge10 for 'Justice S. Abdul Nazeer'
+2025-11-04 11:15:49,061 - INFO - ✓ Created judge relationship: j4 -> judge10
+2025-11-04 11:15:49,061 - INFO - 🔄 Processing 1 petitioner advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,062 - INFO - 📄 Created petitioner advocate node: petitioner_advocate6 for 'Mr. Shyam Divan'
+2025-11-04 11:15:49,062 - INFO - ✓ Created petitioner advocate relationship: j4 -> petitioner_advocate6
+2025-11-04 11:15:49,062 - INFO - 🔄 Processing 2 respondant advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,062 - INFO - 📄 Created respondant advocate node: respondant_advocate6 for 'Ms. Pinky Anand'
+2025-11-04 11:15:49,062 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate6
+2025-11-04 11:15:49,062 - INFO - 📄 Created respondant advocate node: respondant_advocate7 for 'Mr. Rakesh Dwivedi'
+2025-11-04 11:15:49,062 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate7
+2025-11-04 11:15:49,062 - INFO - 🔄 Processing outcome 'Respondent Won' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,062 - INFO - ✓ Created outcome relationship: j4 -> outcome2
+2025-11-04 11:15:49,062 - INFO - 🔄 Processing case duration '2020-04-10 to 2021-01-24' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,062 - INFO - 📄 Created case duration node: case_duration4 for '2020-04-10 to 2021-01-24'
+2025-11-04 11:15:49,062 - INFO - ✓ Created case duration relationship: j4 -> case_duration4
+2025-11-04 11:15:49,063 - INFO - 🔄 Processing 3 citations for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,063 - INFO - 📄 Created citation node: c7 for 'Nanda Dulal Pradhan & Anr. v. Dibakar Pradhan & An...'
+2025-11-04 11:15:49,063 - INFO - ✓ Created citation relationship: j4 -> c7
+2025-11-04 11:15:49,063 - INFO - 📄 Created citation node: c8 for 'Nalini Sunder v. GV Sunder AIR 2003 Kar 86...'
+2025-11-04 11:15:49,063 - INFO - ✓ Created citation relationship: j4 -> c8
+2025-11-04 11:15:49,063 - INFO - 📄 Created citation node: c9 for 'R.V. Prasannakumaar & others. v. Mantri Castles Pr...'
+2025-11-04 11:15:49,063 - INFO - ✓ Created citation relationship: j4 -> c9
+2025-11-04 11:15:49,063 - INFO - ✓ Processing judgment 5: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,064 - INFO - 🔄 Processing 3 judges for judgment: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,064 - INFO - 📄 Created judge node: judge11 for 'Justice Hima Kohli'
+2025-11-04 11:15:49,064 - INFO - ✓ Created judge relationship: j5 -> judge11
+2025-11-04 11:15:49,064 - INFO - 📄 Created judge node: judge12 for 'Justice J. B. Pardiwala'
+2025-11-04 11:15:49,064 - INFO - ✓ Created judge relationship: j5 -> judge12
+2025-11-04 11:15:49,064 - INFO - 📄 Created judge node: judge13 for 'Justice Surya Kant'
+2025-11-04 11:15:49,064 - INFO - ✓ Created judge relationship: j5 -> judge13
+2025-11-04 11:15:49,064 - INFO - 🔄 Processing 2 petitioner advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,065 - INFO - 📄 Created petitioner advocate node: petitioner_advocate7 for 'Mr. Arvind Datar'
+2025-11-04 11:15:49,065 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate7
+2025-11-04 11:15:49,065 - INFO - 📄 Created petitioner advocate node: petitioner_advocate8 for 'Ms. Aparajita Singh'
+2025-11-04 11:15:49,065 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate8
+2025-11-04 11:15:49,065 - INFO - 🔄 Processing 1 respondant advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,065 - INFO - 📄 Created respondant advocate node: respondant_advocate8 for 'Mr. Ranjit Kumar'
+2025-11-04 11:15:49,065 - INFO - ✓ Created respondant advocate relationship: j5 -> respondant_advocate8
+2025-11-04 11:15:49,065 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,065 - INFO - ✓ Created outcome relationship: j5 -> outcome1
+2025-11-04 11:15:49,065 - INFO - 🔄 Processing case duration '2018-09-12 to 2019-07-19' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,065 - INFO - 📄 Created case duration node: case_duration5 for '2018-09-12 to 2019-07-19'
+2025-11-04 11:15:49,065 - INFO - ✓ Created case duration relationship: j5 -> case_duration5
+2025-11-04 11:15:49,065 - INFO - 🔄 Processing 2 citations for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,066 - INFO - 📄 Created citation node: c10 for 'Kunwar Pal Singh v. State of Uttarakhand, (2014) 1...'
+2025-11-04 11:15:49,066 - INFO - ✓ Created citation relationship: j5 -> c10
+2025-11-04 11:15:49,066 - INFO - 📄 Created citation node: c11 for 'Bhagwan Singh v. State of Uttarakhand, (2020) 14 S...'
+2025-11-04 11:15:49,066 - INFO - ✓ Created citation relationship: j5 -> c11
+2025-11-04 11:15:49,066 - INFO - ✓ Processing judgment 6: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,066 - INFO - 🔄 Processing 2 judges for judgment: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,066 - INFO - 📄 Created judge node: judge14 for 'Justice K. M. Joseph'
+2025-11-04 11:15:49,066 - INFO - ✓ Created judge relationship: j6 -> judge14
+2025-11-04 11:15:49,066 - INFO - 📄 Created judge node: judge15 for 'Justice B. R. Gavai'
+2025-11-04 11:15:49,066 - INFO - ✓ Created judge relationship: j6 -> judge15
+2025-11-04 11:15:49,066 - INFO - 🔄 Processing 1 petitioner advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,066 - INFO - 📄 Created petitioner advocate node: petitioner_advocate9 for 'Mr. C. A. Sundaram'
+2025-11-04 11:15:49,066 - INFO - ✓ Created petitioner advocate relationship: j6 -> petitioner_advocate9
+2025-11-04 11:15:49,067 - INFO - 🔄 Processing 2 respondant advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,067 - INFO - 📄 Created respondant advocate node: respondant_advocate9 for 'Mr. P. S. Narasimha'
+2025-11-04 11:15:49,067 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate9
+2025-11-04 11:15:49,067 - INFO - 📄 Created respondant advocate node: respondant_advocate10 for 'Ms. Madhavi Divan'
+2025-11-04 11:15:49,067 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate10
+2025-11-04 11:15:49,067 - INFO - 🔄 Processing outcome 'Respondent Won' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,067 - INFO - ✓ Created outcome relationship: j6 -> outcome2
+2025-11-04 11:15:49,067 - INFO - 🔄 Processing case duration '2019-11-10 to 2021-01-29' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,067 - INFO - 📄 Created case duration node: case_duration6 for '2019-11-10 to 2021-01-29'
+2025-11-04 11:15:49,067 - INFO - ✓ Created case duration relationship: j6 -> case_duration6
+2025-11-04 11:15:49,067 - INFO - 🔄 Processing 2 citations for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,067 - INFO - 📄 Created citation node: c12 for 'T. Arivandandam v. T.V. Satyapal [1978] 1 SCR 742 ...'
+2025-11-04 11:15:49,068 - INFO - ✓ Created citation relationship: j6 -> c12
+2025-11-04 11:15:49,068 - INFO - 📄 Created citation node: c13 for 'Satti Paradesi Samadhi & Pillayar Temple v. M. San...'
+2025-11-04 11:15:49,068 - INFO - ✓ Created citation relationship: j6 -> c13
+2025-11-04 11:15:49,068 - INFO - ✓ Processing judgment 7: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,068 - INFO - 🔄 Processing 3 judges for judgment: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,068 - INFO - 📄 Created judge node: judge16 for 'Justice Krishna Murari'
+2025-11-04 11:15:49,068 - INFO - ✓ Created judge relationship: j7 -> judge16
+2025-11-04 11:15:49,068 - INFO - 📄 Created judge node: judge17 for 'Justice P. S. Narasimha'
+2025-11-04 11:15:49,068 - INFO - ✓ Created judge relationship: j7 -> judge17
+2025-11-04 11:15:49,068 - INFO - 📄 Created judge node: judge18 for 'Justice Aniruddha Bose'
+2025-11-04 11:15:49,068 - INFO - ✓ Created judge relationship: j7 -> judge18
+2025-11-04 11:15:49,068 - INFO - 🔄 Processing 1 petitioner advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,069 - INFO - 📄 Created petitioner advocate node: petitioner_advocate10 for 'Mr. Sidharth Luthra'
+2025-11-04 11:15:49,069 - INFO - ✓ Created petitioner advocate relationship: j7 -> petitioner_advocate10
+2025-11-04 11:15:49,069 - INFO - 🔄 Processing 2 respondant advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,069 - INFO - 📄 Created respondant advocate node: respondant_advocate11 for 'Mr. Maninder Singh'
+2025-11-04 11:15:49,069 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate11
+2025-11-04 11:15:49,069 - INFO - 📄 Created respondant advocate node: respondant_advocate12 for 'Mr. Vikramjit Banerjee'
+2025-11-04 11:15:49,069 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate12
+2025-11-04 11:15:49,069 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,069 - INFO - ✓ Created outcome relationship: j7 -> outcome1
+2025-11-04 11:15:49,069 - INFO - 🔄 Processing case duration '2022-02-11 to 2022-09-21' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,069 - INFO - 📄 Created case duration node: case_duration7 for '2022-02-11 to 2022-09-21'
+2025-11-04 11:15:49,069 - INFO - ✓ Created case duration relationship: j7 -> case_duration7
+2025-11-04 11:15:49,069 - INFO - 🔄 Processing 2 citations for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,070 - INFO - ✓ Created citation relationship: j7 -> c1
+2025-11-04 11:15:49,070 - INFO - ✓ Found title match - j7 -> j1
+2025-11-04 11:15:49,070 - INFO - 🔄 Combining RDF triples from all relationship handlers...
+2025-11-04 11:15:49,070 - INFO - 🔄 Processing 3 judges for judgment: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,070 - INFO - ✓ Created judge relationship: j1 -> judge1
+2025-11-04 11:15:49,070 - INFO - ✓ Created judge relationship: j1 -> judge2
+2025-11-04 11:15:49,070 - INFO - ✓ Created judge relationship: j1 -> judge3
+2025-11-04 11:15:49,070 - INFO - 🔄 Processing 2 petitioner advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,070 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate1
+2025-11-04 11:15:49,070 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate2
+2025-11-04 11:15:49,070 - INFO - 🔄 Processing 2 respondant advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,070 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate1
+2025-11-04 11:15:49,071 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate2
+2025-11-04 11:15:49,071 - INFO - 🔄 Processing outcome 'Petitioner Won' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,071 - INFO - ✓ Created outcome relationship: j1 -> outcome1
+2025-11-04 11:15:49,071 - INFO - 🔄 Processing case duration '2019-03-15 to 2019-11-18' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,071 - INFO - ✓ Created case duration relationship: j1 -> case_duration1
+2025-11-04 11:15:49,071 - INFO - 🔄 Processing 3 citations for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:15:49,071 - INFO - ✓ Created citation relationship: j1 -> c1
+2025-11-04 11:15:49,071 - INFO - ✓ Created citation relationship: j1 -> c2
+2025-11-04 11:15:49,071 - INFO - ✓ Created citation relationship: j1 -> c3
+2025-11-04 11:15:49,071 - INFO - 🔄 Processing 2 judges for judgment: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,071 - INFO - ✓ Created judge relationship: j2 -> judge4
+2025-11-04 11:15:49,071 - INFO - ✓ Created judge relationship: j2 -> judge5
+2025-11-04 11:15:49,071 - INFO - 🔄 Processing 1 petitioner advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,072 - INFO - ✓ Created petitioner advocate relationship: j2 -> petitioner_advocate3
+2025-11-04 11:15:49,072 - INFO - 🔄 Processing 2 respondant advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,072 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate3
+2025-11-04 11:15:49,072 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate4
+2025-11-04 11:15:49,072 - INFO - 🔄 Processing outcome 'Respondent Won' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,072 - INFO - ✓ Created outcome relationship: j2 -> outcome2
+2025-11-04 11:15:49,072 - INFO - 🔄 Processing case duration '2020-07-22 to 2021-08-18' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,072 - INFO - ✓ Created case duration relationship: j2 -> case_duration2
+2025-11-04 11:15:49,072 - INFO - 🔄 Processing 2 citations for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:15:49,072 - INFO - ✓ Created citation relationship: j2 -> c3
+2025-11-04 11:15:49,072 - INFO - ✓ Found title match - j2 -> j2
+2025-11-04 11:15:49,072 - INFO - 🔄 Processing 3 judges for judgment: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,073 - INFO - ✓ Created judge relationship: j3 -> judge6
+2025-11-04 11:15:49,073 - INFO - ✓ Created judge relationship: j3 -> judge7
+2025-11-04 11:15:49,073 - INFO - ✓ Created judge relationship: j3 -> judge8
+2025-11-04 11:15:49,073 - INFO - 🔄 Processing 2 petitioner advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,073 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate4
+2025-11-04 11:15:49,073 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate5
+2025-11-04 11:15:49,073 - INFO - 🔄 Processing 1 respondant advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,073 - INFO - ✓ Created respondant advocate relationship: j3 -> respondant_advocate5
+2025-11-04 11:15:49,073 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,073 - INFO - ✓ Created outcome relationship: j3 -> outcome1
+2025-11-04 11:15:49,073 - INFO - 🔄 Processing case duration '2021-01-05 to 2021-06-30' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,073 - INFO - ✓ Created case duration relationship: j3 -> case_duration3
+2025-11-04 11:15:49,073 - INFO - 🔄 Processing 3 citations for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:15:49,074 - INFO - ✓ Created citation relationship: j3 -> c4
+2025-11-04 11:15:49,074 - INFO - ✓ Created citation relationship: j3 -> c5
+2025-11-04 11:15:49,074 - INFO - ✓ Created citation relationship: j3 -> c6
+2025-11-04 11:15:49,074 - INFO - 🔄 Processing 2 judges for judgment: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,074 - INFO - ✓ Created judge relationship: j4 -> judge9
+2025-11-04 11:15:49,074 - INFO - ✓ Created judge relationship: j4 -> judge10
+2025-11-04 11:15:49,074 - INFO - 🔄 Processing 1 petitioner advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,074 - INFO - ✓ Created petitioner advocate relationship: j4 -> petitioner_advocate6
+2025-11-04 11:15:49,074 - INFO - 🔄 Processing 2 respondant advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,074 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate6
+2025-11-04 11:15:49,074 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate7
+2025-11-04 11:15:49,074 - INFO - 🔄 Processing outcome 'Respondent Won' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,075 - INFO - ✓ Created outcome relationship: j4 -> outcome2
+2025-11-04 11:15:49,075 - INFO - 🔄 Processing case duration '2020-04-10 to 2021-01-24' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,075 - INFO - ✓ Created case duration relationship: j4 -> case_duration4
+2025-11-04 11:15:49,075 - INFO - 🔄 Processing 3 citations for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:15:49,075 - INFO - ✓ Created citation relationship: j4 -> c7
+2025-11-04 11:15:49,075 - INFO - ✓ Created citation relationship: j4 -> c8
+2025-11-04 11:15:49,075 - INFO - ✓ Created citation relationship: j4 -> c9
+2025-11-04 11:15:49,075 - INFO - 🔄 Processing 3 judges for judgment: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,075 - INFO - ✓ Created judge relationship: j5 -> judge11
+2025-11-04 11:15:49,075 - INFO - ✓ Created judge relationship: j5 -> judge12
+2025-11-04 11:15:49,075 - INFO - ✓ Created judge relationship: j5 -> judge13
+2025-11-04 11:15:49,076 - INFO - 🔄 Processing 2 petitioner advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,076 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate7
+2025-11-04 11:15:49,076 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate8
+2025-11-04 11:15:49,076 - INFO - 🔄 Processing 1 respondant advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,076 - INFO - ✓ Created respondant advocate relationship: j5 -> respondant_advocate8
+2025-11-04 11:15:49,076 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,076 - INFO - ✓ Created outcome relationship: j5 -> outcome1
+2025-11-04 11:15:49,076 - INFO - 🔄 Processing case duration '2018-09-12 to 2019-07-19' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,076 - INFO - ✓ Created case duration relationship: j5 -> case_duration5
+2025-11-04 11:15:49,076 - INFO - 🔄 Processing 2 citations for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:15:49,076 - INFO - ✓ Created citation relationship: j5 -> c10
+2025-11-04 11:15:49,077 - INFO - ✓ Created citation relationship: j5 -> c11
+2025-11-04 11:15:49,077 - INFO - 🔄 Processing 2 judges for judgment: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,077 - INFO - ✓ Created judge relationship: j6 -> judge14
+2025-11-04 11:15:49,078 - INFO - ✓ Created judge relationship: j6 -> judge15
+2025-11-04 11:15:49,078 - INFO - 🔄 Processing 1 petitioner advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,078 - INFO - ✓ Created petitioner advocate relationship: j6 -> petitioner_advocate9
+2025-11-04 11:15:49,078 - INFO - 🔄 Processing 2 respondant advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,078 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate9
+2025-11-04 11:15:49,078 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate10
+2025-11-04 11:15:49,078 - INFO - 🔄 Processing outcome 'Respondent Won' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,078 - INFO - ✓ Created outcome relationship: j6 -> outcome2
+2025-11-04 11:15:49,078 - INFO - 🔄 Processing case duration '2019-11-10 to 2021-01-29' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,078 - INFO - ✓ Created case duration relationship: j6 -> case_duration6
+2025-11-04 11:15:49,078 - INFO - 🔄 Processing 2 citations for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:15:49,078 - INFO - ✓ Created citation relationship: j6 -> c12
+2025-11-04 11:15:49,078 - INFO - ✓ Created citation relationship: j6 -> c13
+2025-11-04 11:15:49,079 - INFO - 🔄 Processing 3 judges for judgment: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,079 - INFO - ✓ Created judge relationship: j7 -> judge16
+2025-11-04 11:15:49,079 - INFO - ✓ Created judge relationship: j7 -> judge17
+2025-11-04 11:15:49,079 - INFO - ✓ Created judge relationship: j7 -> judge18
+2025-11-04 11:15:49,079 - INFO - 🔄 Processing 1 petitioner advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,079 - INFO - ✓ Created petitioner advocate relationship: j7 -> petitioner_advocate10
+2025-11-04 11:15:49,079 - INFO - 🔄 Processing 2 respondant advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,079 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate11
+2025-11-04 11:15:49,079 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate12
+2025-11-04 11:15:49,079 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,079 - INFO - ✓ Created outcome relationship: j7 -> outcome1
+2025-11-04 11:15:49,080 - INFO - 🔄 Processing case duration '2022-02-11 to 2022-09-21' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,080 - INFO - ✓ Created case duration relationship: j7 -> case_duration7
+2025-11-04 11:15:49,080 - INFO - 🔄 Processing 2 citations for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:15:49,080 - INFO - ✓ Created citation relationship: j7 -> c1
+2025-11-04 11:15:49,080 - INFO - ✓ Found title match - j7 -> j1
+2025-11-04 11:15:49,080 - INFO - ✅ Combined 314 total RDF triples
+2025-11-04 11:15:49,080 - INFO - 💾 Writing RDF file: judgments.rdf
+2025-11-04 11:15:49,081 - INFO - ✅ RDF file written successfully
+2025-11-04 11:15:49,081 - INFO - 🎉 Modular RDF generation completed successfully!
+2025-11-04 11:16:21,302 - INFO - GET http://localhost:9200/ [status:200 request:0.003s]
+2025-11-04 11:16:21,303 - INFO - HEAD http://localhost:9200/ [status:200 request:0.001s]
+2025-11-04 11:16:21,305 - INFO - HEAD http://localhost:9200/graphdb_copy [status:200 request:0.002s]
+2025-11-04 11:16:21,305 - INFO - ✅ Connected to Elasticsearch at http://localhost:9200
+2025-11-04 11:16:21,306 - INFO - 📋 Judge Relationship Handler initialized
+2025-11-04 11:16:21,306 - INFO - 👨‍💼 Advocate Relationship Handler initialized
+2025-11-04 11:16:21,306 - INFO - ⚖️ Outcome Relationship Handler initialized
+2025-11-04 11:16:21,306 - INFO - 📅 Case Duration Relationship Handler initialized
+2025-11-04 11:16:21,306 - INFO - 🔗 Citation Relationship Handler initialized
+2025-11-04 11:16:21,306 - INFO - 🚀 Modular RDF Generator initialized with separate relationship handlers
+2025-11-04 11:16:21,306 - INFO - 🔄 Starting modular RDF generation process...
+2025-11-04 11:16:21,306 - INFO - 📖 Loading data from Elasticsearch index: graphdb_copy
+2025-11-04 11:16:21,311 - INFO - POST http://localhost:9200/graphdb_copy/_search [status:200 request:0.004s]
+2025-11-04 11:16:21,312 - INFO - ✅ Loaded 7 documents from Elasticsearch
+2025-11-04 11:16:21,312 - INFO - 🔄 First pass: Collecting judgment data and building mappings...
+2025-11-04 11:16:21,313 - INFO - 📋 Updated title mapping with 7 judgments
+2025-11-04 11:16:21,314 - INFO - ✅ Collected 7 judgments and built mappings
+2025-11-04 11:16:21,314 - INFO - 🔄 Second pass: Processing judgments using modular relationship handlers...
+2025-11-04 11:16:21,314 - INFO - ✓ Processing judgment 1: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,314 - INFO - 🔄 Processing 3 judges for judgment: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,314 - INFO - 📄 Created judge node: judge1 for 'Justice D. Y. Chandrachud'
+2025-11-04 11:16:21,314 - INFO - ✓ Created judge relationship: j1 -> judge1
+2025-11-04 11:16:21,314 - INFO - 📄 Created judge node: judge2 for 'Justice Sanjay Kishan Kaul'
+2025-11-04 11:16:21,314 - INFO - ✓ Created judge relationship: j1 -> judge2
+2025-11-04 11:16:21,314 - INFO - 📄 Created judge node: judge3 for 'Justice Indu Malhotra'
+2025-11-04 11:16:21,314 - INFO - ✓ Created judge relationship: j1 -> judge3
+2025-11-04 11:16:21,314 - INFO - 🔄 Processing 2 petitioner advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,314 - INFO - 📄 Created petitioner advocate node: petitioner_advocate1 for 'Mr. Mukul Rohatgi'
+2025-11-04 11:16:21,314 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate1
+2025-11-04 11:16:21,315 - INFO - 📄 Created petitioner advocate node: petitioner_advocate2 for 'Ms. Meenakshi Arora'
+2025-11-04 11:16:21,315 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate2
+2025-11-04 11:16:21,315 - INFO - 🔄 Processing 2 respondant advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,315 - INFO - 📄 Created respondant advocate node: respondant_advocate1 for 'Mr. Tushar Mehta'
+2025-11-04 11:16:21,315 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate1
+2025-11-04 11:16:21,315 - INFO - 📄 Created respondant advocate node: respondant_advocate2 for 'Mr. Aman Lekhi'
+2025-11-04 11:16:21,315 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate2
+2025-11-04 11:16:21,315 - INFO - 🔄 Processing outcome 'Petitioner Won' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,315 - INFO - 📄 Created outcome node: outcome1 for 'Petitioner Won'
+2025-11-04 11:16:21,315 - INFO - ✓ Created outcome relationship: j1 -> outcome1
+2025-11-04 11:16:21,315 - INFO - 🔄 Processing case duration '2019-03-15 to 2019-11-18' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,315 - INFO - 📄 Created case duration node: case_duration1 for '2019-03-15 to 2019-11-18'
+2025-11-04 11:16:21,315 - INFO - ✓ Created case duration relationship: j1 -> case_duration1
+2025-11-04 11:16:21,315 - INFO - 🔄 Processing 3 citations for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,316 - INFO - 📄 Created citation node: c1 for 'State of Uttarakhand and Ors. v. Harpal Singh Rawa...'
+2025-11-04 11:16:21,316 - INFO - ✓ Created citation relationship: j1 -> c1
+2025-11-04 11:16:21,316 - INFO - 📄 Created citation node: c2 for 'Nasiruddin and another v. State of Uttar Pradesh T...'
+2025-11-04 11:16:21,316 - INFO - ✓ Created citation relationship: j1 -> c2
+2025-11-04 11:16:21,316 - INFO - 📄 Created citation node: c3 for 'Paramjeet Batra v. State of Uttarakhand (2013) 11 ...'
+2025-11-04 11:16:21,316 - INFO - ✓ Created citation relationship: j1 -> c3
+2025-11-04 11:16:21,316 - INFO - ✓ Processing judgment 2: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,316 - INFO - 🔄 Processing 2 judges for judgment: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,316 - INFO - 📄 Created judge node: judge4 for 'Justice U. U. Lalit'
+2025-11-04 11:16:21,316 - INFO - ✓ Created judge relationship: j2 -> judge4
+2025-11-04 11:16:21,316 - INFO - 📄 Created judge node: judge5 for 'Justice Hemant Gupta'
+2025-11-04 11:16:21,316 - INFO - ✓ Created judge relationship: j2 -> judge5
+2025-11-04 11:16:21,317 - INFO - 🔄 Processing 1 petitioner advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,317 - INFO - 📄 Created petitioner advocate node: petitioner_advocate3 for 'Mr. Kapil Sibal'
+2025-11-04 11:16:21,317 - INFO - ✓ Created petitioner advocate relationship: j2 -> petitioner_advocate3
+2025-11-04 11:16:21,317 - INFO - 🔄 Processing 2 respondant advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,317 - INFO - 📄 Created respondant advocate node: respondant_advocate3 for 'Mr. Harish Salve'
+2025-11-04 11:16:21,317 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate3
+2025-11-04 11:16:21,317 - INFO - 📄 Created respondant advocate node: respondant_advocate4 for 'Mr. Gopal Subramanium'
+2025-11-04 11:16:21,317 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate4
+2025-11-04 11:16:21,317 - INFO - 🔄 Processing outcome 'Respondent Won' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,317 - INFO - 📄 Created outcome node: outcome2 for 'Respondent Won'
+2025-11-04 11:16:21,317 - INFO - ✓ Created outcome relationship: j2 -> outcome2
+2025-11-04 11:16:21,317 - INFO - 🔄 Processing case duration '2020-07-22 to 2021-08-18' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,318 - INFO - 📄 Created case duration node: case_duration2 for '2020-07-22 to 2021-08-18'
+2025-11-04 11:16:21,318 - INFO - ✓ Created case duration relationship: j2 -> case_duration2
+2025-11-04 11:16:21,318 - INFO - 🔄 Processing 2 citations for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,318 - INFO - ✓ Created citation relationship: j2 -> c3
+2025-11-04 11:16:21,318 - INFO - ✓ Found title match - j2 -> j2
+2025-11-04 11:16:21,318 - INFO - ✓ Processing judgment 3: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,318 - INFO - 🔄 Processing 3 judges for judgment: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,318 - INFO - 📄 Created judge node: judge6 for 'Justice R. Banumathi'
+2025-11-04 11:16:21,318 - INFO - ✓ Created judge relationship: j3 -> judge6
+2025-11-04 11:16:21,318 - INFO - 📄 Created judge node: judge7 for 'Justice V. Ramasubramanian'
+2025-11-04 11:16:21,318 - INFO - ✓ Created judge relationship: j3 -> judge7
+2025-11-04 11:16:21,319 - INFO - 📄 Created judge node: judge8 for 'Justice Bela M. Trivedi'
+2025-11-04 11:16:21,319 - INFO - ✓ Created judge relationship: j3 -> judge8
+2025-11-04 11:16:21,319 - INFO - 🔄 Processing 2 petitioner advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,319 - INFO - 📄 Created petitioner advocate node: petitioner_advocate4 for 'Mr. Abhishek Manu Singhvi'
+2025-11-04 11:16:21,319 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate4
+2025-11-04 11:16:21,319 - INFO - 📄 Created petitioner advocate node: petitioner_advocate5 for 'Ms. Karuna Nundy'
+2025-11-04 11:16:21,319 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate5
+2025-11-04 11:16:21,319 - INFO - 🔄 Processing 1 respondant advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,319 - INFO - 📄 Created respondant advocate node: respondant_advocate5 for 'Mr. K. K. Venugopal'
+2025-11-04 11:16:21,319 - INFO - ✓ Created respondant advocate relationship: j3 -> respondant_advocate5
+2025-11-04 11:16:21,319 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,320 - INFO - ✓ Created outcome relationship: j3 -> outcome1
+2025-11-04 11:16:21,320 - INFO - 🔄 Processing case duration '2021-01-05 to 2021-06-30' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,320 - INFO - 📄 Created case duration node: case_duration3 for '2021-01-05 to 2021-06-30'
+2025-11-04 11:16:21,320 - INFO - ✓ Created case duration relationship: j3 -> case_duration3
+2025-11-04 11:16:21,320 - INFO - 🔄 Processing 3 citations for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,320 - INFO - 📄 Created citation node: c4 for 'Mohd. Yusuf v. Rajkumar [2020] 3 SCR 649 : (2020) ...'
+2025-11-04 11:16:21,320 - INFO - ✓ Created citation relationship: j3 -> c4
+2025-11-04 11:16:21,321 - INFO - 📄 Created citation node: c5 for 'Ravinder Kaur Grewal and Others v. Manjit Kaur and...'
+2025-11-04 11:16:21,321 - INFO - ✓ Created citation relationship: j3 -> c5
+2025-11-04 11:16:21,321 - INFO - 📄 Created citation node: c6 for 'Khushi Ram v. Nawal Singh [2021] 4 SCR 1019 : (202...'
+2025-11-04 11:16:21,321 - INFO - ✓ Created citation relationship: j3 -> c6
+2025-11-04 11:16:21,321 - INFO - ✓ Processing judgment 4: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,321 - INFO - 🔄 Processing 2 judges for judgment: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,321 - INFO - 📄 Created judge node: judge9 for 'Justice A. S. Bopanna'
+2025-11-04 11:16:21,321 - INFO - ✓ Created judge relationship: j4 -> judge9
+2025-11-04 11:16:21,321 - INFO - 📄 Created judge node: judge10 for 'Justice S. Abdul Nazeer'
+2025-11-04 11:16:21,321 - INFO - ✓ Created judge relationship: j4 -> judge10
+2025-11-04 11:16:21,322 - INFO - 🔄 Processing 1 petitioner advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,322 - INFO - 📄 Created petitioner advocate node: petitioner_advocate6 for 'Mr. Shyam Divan'
+2025-11-04 11:16:21,322 - INFO - ✓ Created petitioner advocate relationship: j4 -> petitioner_advocate6
+2025-11-04 11:16:21,322 - INFO - 🔄 Processing 2 respondant advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,322 - INFO - 📄 Created respondant advocate node: respondant_advocate6 for 'Ms. Pinky Anand'
+2025-11-04 11:16:21,322 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate6
+2025-11-04 11:16:21,322 - INFO - 📄 Created respondant advocate node: respondant_advocate7 for 'Mr. Rakesh Dwivedi'
+2025-11-04 11:16:21,322 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate7
+2025-11-04 11:16:21,322 - INFO - 🔄 Processing outcome 'Respondent Won' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,322 - INFO - ✓ Created outcome relationship: j4 -> outcome2
+2025-11-04 11:16:21,322 - INFO - 🔄 Processing case duration '2020-04-10 to 2021-01-24' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,322 - INFO - 📄 Created case duration node: case_duration4 for '2020-04-10 to 2021-01-24'
+2025-11-04 11:16:21,322 - INFO - ✓ Created case duration relationship: j4 -> case_duration4
+2025-11-04 11:16:21,323 - INFO - 🔄 Processing 3 citations for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,323 - INFO - 📄 Created citation node: c7 for 'Nanda Dulal Pradhan & Anr. v. Dibakar Pradhan & An...'
+2025-11-04 11:16:21,323 - INFO - ✓ Created citation relationship: j4 -> c7
+2025-11-04 11:16:21,323 - INFO - 📄 Created citation node: c8 for 'Nalini Sunder v. GV Sunder AIR 2003 Kar 86...'
+2025-11-04 11:16:21,323 - INFO - ✓ Created citation relationship: j4 -> c8
+2025-11-04 11:16:21,323 - INFO - 📄 Created citation node: c9 for 'R.V. Prasannakumaar & others. v. Mantri Castles Pr...'
+2025-11-04 11:16:21,323 - INFO - ✓ Created citation relationship: j4 -> c9
+2025-11-04 11:16:21,323 - INFO - ✓ Processing judgment 5: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,323 - INFO - 🔄 Processing 3 judges for judgment: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,323 - INFO - 📄 Created judge node: judge11 for 'Justice Hima Kohli'
+2025-11-04 11:16:21,323 - INFO - ✓ Created judge relationship: j5 -> judge11
+2025-11-04 11:16:21,323 - INFO - 📄 Created judge node: judge12 for 'Justice J. B. Pardiwala'
+2025-11-04 11:16:21,323 - INFO - ✓ Created judge relationship: j5 -> judge12
+2025-11-04 11:16:21,323 - INFO - 📄 Created judge node: judge13 for 'Justice Surya Kant'
+2025-11-04 11:16:21,323 - INFO - ✓ Created judge relationship: j5 -> judge13
+2025-11-04 11:16:21,324 - INFO - 🔄 Processing 2 petitioner advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,324 - INFO - 📄 Created petitioner advocate node: petitioner_advocate7 for 'Mr. Arvind Datar'
+2025-11-04 11:16:21,324 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate7
+2025-11-04 11:16:21,324 - INFO - 📄 Created petitioner advocate node: petitioner_advocate8 for 'Ms. Aparajita Singh'
+2025-11-04 11:16:21,324 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate8
+2025-11-04 11:16:21,324 - INFO - 🔄 Processing 1 respondant advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,324 - INFO - 📄 Created respondant advocate node: respondant_advocate8 for 'Mr. Ranjit Kumar'
+2025-11-04 11:16:21,324 - INFO - ✓ Created respondant advocate relationship: j5 -> respondant_advocate8
+2025-11-04 11:16:21,324 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,324 - INFO - ✓ Created outcome relationship: j5 -> outcome1
+2025-11-04 11:16:21,324 - INFO - 🔄 Processing case duration '2018-09-12 to 2019-07-19' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,324 - INFO - 📄 Created case duration node: case_duration5 for '2018-09-12 to 2019-07-19'
+2025-11-04 11:16:21,324 - INFO - ✓ Created case duration relationship: j5 -> case_duration5
+2025-11-04 11:16:21,324 - INFO - 🔄 Processing 2 citations for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,324 - INFO - 📄 Created citation node: c10 for 'Kunwar Pal Singh v. State of Uttarakhand, (2014) 1...'
+2025-11-04 11:16:21,324 - INFO - ✓ Created citation relationship: j5 -> c10
+2025-11-04 11:16:21,325 - INFO - 📄 Created citation node: c11 for 'Bhagwan Singh v. State of Uttarakhand, (2020) 14 S...'
+2025-11-04 11:16:21,325 - INFO - ✓ Created citation relationship: j5 -> c11
+2025-11-04 11:16:21,325 - INFO - ✓ Processing judgment 6: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,325 - INFO - 🔄 Processing 2 judges for judgment: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,325 - INFO - 📄 Created judge node: judge14 for 'Justice K. M. Joseph'
+2025-11-04 11:16:21,325 - INFO - ✓ Created judge relationship: j6 -> judge14
+2025-11-04 11:16:21,325 - INFO - 📄 Created judge node: judge15 for 'Justice B. R. Gavai'
+2025-11-04 11:16:21,325 - INFO - ✓ Created judge relationship: j6 -> judge15
+2025-11-04 11:16:21,325 - INFO - 🔄 Processing 1 petitioner advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,325 - INFO - 📄 Created petitioner advocate node: petitioner_advocate9 for 'Mr. C. A. Sundaram'
+2025-11-04 11:16:21,325 - INFO - ✓ Created petitioner advocate relationship: j6 -> petitioner_advocate9
+2025-11-04 11:16:21,325 - INFO - 🔄 Processing 2 respondant advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,325 - INFO - 📄 Created respondant advocate node: respondant_advocate9 for 'Mr. P. S. Narasimha'
+2025-11-04 11:16:21,325 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate9
+2025-11-04 11:16:21,325 - INFO - 📄 Created respondant advocate node: respondant_advocate10 for 'Ms. Madhavi Divan'
+2025-11-04 11:16:21,325 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate10
+2025-11-04 11:16:21,326 - INFO - 🔄 Processing outcome 'Respondent Won' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,326 - INFO - ✓ Created outcome relationship: j6 -> outcome2
+2025-11-04 11:16:21,326 - INFO - 🔄 Processing case duration '2019-11-10 to 2021-01-29' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,326 - INFO - 📄 Created case duration node: case_duration6 for '2019-11-10 to 2021-01-29'
+2025-11-04 11:16:21,326 - INFO - ✓ Created case duration relationship: j6 -> case_duration6
+2025-11-04 11:16:21,326 - INFO - 🔄 Processing 2 citations for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,326 - INFO - 📄 Created citation node: c12 for 'T. Arivandandam v. T.V. Satyapal [1978] 1 SCR 742 ...'
+2025-11-04 11:16:21,326 - INFO - ✓ Created citation relationship: j6 -> c12
+2025-11-04 11:16:21,326 - INFO - 📄 Created citation node: c13 for 'Satti Paradesi Samadhi & Pillayar Temple v. M. San...'
+2025-11-04 11:16:21,326 - INFO - ✓ Created citation relationship: j6 -> c13
+2025-11-04 11:16:21,326 - INFO - ✓ Processing judgment 7: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,326 - INFO - 🔄 Processing 3 judges for judgment: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,326 - INFO - 📄 Created judge node: judge16 for 'Justice Krishna Murari'
+2025-11-04 11:16:21,327 - INFO - ✓ Created judge relationship: j7 -> judge16
+2025-11-04 11:16:21,327 - INFO - 📄 Created judge node: judge17 for 'Justice P. S. Narasimha'
+2025-11-04 11:16:21,327 - INFO - ✓ Created judge relationship: j7 -> judge17
+2025-11-04 11:16:21,327 - INFO - 📄 Created judge node: judge18 for 'Justice Aniruddha Bose'
+2025-11-04 11:16:21,327 - INFO - ✓ Created judge relationship: j7 -> judge18
+2025-11-04 11:16:21,327 - INFO - 🔄 Processing 1 petitioner advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,327 - INFO - 📄 Created petitioner advocate node: petitioner_advocate10 for 'Mr. Sidharth Luthra'
+2025-11-04 11:16:21,327 - INFO - ✓ Created petitioner advocate relationship: j7 -> petitioner_advocate10
+2025-11-04 11:16:21,327 - INFO - 🔄 Processing 2 respondant advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,327 - INFO - 📄 Created respondant advocate node: respondant_advocate11 for 'Mr. Maninder Singh'
+2025-11-04 11:16:21,328 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate11
+2025-11-04 11:16:21,328 - INFO - 📄 Created respondant advocate node: respondant_advocate12 for 'Mr. Vikramjit Banerjee'
+2025-11-04 11:16:21,328 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate12
+2025-11-04 11:16:21,328 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,328 - INFO - ✓ Created outcome relationship: j7 -> outcome1
+2025-11-04 11:16:21,328 - INFO - 🔄 Processing case duration '2022-02-11 to 2022-09-21' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,328 - INFO - 📄 Created case duration node: case_duration7 for '2022-02-11 to 2022-09-21'
+2025-11-04 11:16:21,328 - INFO - ✓ Created case duration relationship: j7 -> case_duration7
+2025-11-04 11:16:21,328 - INFO - 🔄 Processing 2 citations for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,328 - INFO - ✓ Created citation relationship: j7 -> c1
+2025-11-04 11:16:21,329 - INFO - ✓ Found title match - j7 -> j1
+2025-11-04 11:16:21,329 - INFO - 🔄 Combining RDF triples from all relationship handlers...
+2025-11-04 11:16:21,329 - INFO - 🔄 Processing 3 judges for judgment: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,329 - INFO - ✓ Created judge relationship: j1 -> judge1
+2025-11-04 11:16:21,329 - INFO - ✓ Created judge relationship: j1 -> judge2
+2025-11-04 11:16:21,329 - INFO - ✓ Created judge relationship: j1 -> judge3
+2025-11-04 11:16:21,329 - INFO - 🔄 Processing 2 petitioner advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,329 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate1
+2025-11-04 11:16:21,329 - INFO - ✓ Created petitioner advocate relationship: j1 -> petitioner_advocate2
+2025-11-04 11:16:21,329 - INFO - 🔄 Processing 2 respondant advocates for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,329 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate1
+2025-11-04 11:16:21,329 - INFO - ✓ Created respondant advocate relationship: j1 -> respondant_advocate2
+2025-11-04 11:16:21,329 - INFO - 🔄 Processing outcome 'Petitioner Won' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,330 - INFO - ✓ Created outcome relationship: j1 -> outcome1
+2025-11-04 11:16:21,330 - INFO - 🔄 Processing case duration '2019-03-15 to 2019-11-18' for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,330 - INFO - ✓ Created case duration relationship: j1 -> case_duration1
+2025-11-04 11:16:21,330 - INFO - 🔄 Processing 3 citations for: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:16:21,330 - INFO - ✓ Created citation relationship: j1 -> c1
+2025-11-04 11:16:21,330 - INFO - ✓ Created citation relationship: j1 -> c2
+2025-11-04 11:16:21,330 - INFO - ✓ Created citation relationship: j1 -> c3
+2025-11-04 11:16:21,330 - INFO - 🔄 Processing 2 judges for judgment: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,330 - INFO - ✓ Created judge relationship: j2 -> judge4
+2025-11-04 11:16:21,330 - INFO - ✓ Created judge relationship: j2 -> judge5
+2025-11-04 11:16:21,330 - INFO - 🔄 Processing 1 petitioner advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,330 - INFO - ✓ Created petitioner advocate relationship: j2 -> petitioner_advocate3
+2025-11-04 11:16:21,331 - INFO - 🔄 Processing 2 respondant advocates for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,331 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate3
+2025-11-04 11:16:21,331 - INFO - ✓ Created respondant advocate relationship: j2 -> respondant_advocate4
+2025-11-04 11:16:21,331 - INFO - 🔄 Processing outcome 'Respondent Won' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,331 - INFO - ✓ Created outcome relationship: j2 -> outcome2
+2025-11-04 11:16:21,331 - INFO - 🔄 Processing case duration '2020-07-22 to 2021-08-18' for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,331 - INFO - ✓ Created case duration relationship: j2 -> case_duration2
+2025-11-04 11:16:21,331 - INFO - 🔄 Processing 2 citations for: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:16:21,331 - INFO - ✓ Created citation relationship: j2 -> c3
+2025-11-04 11:16:21,331 - INFO - ✓ Found title match - j2 -> j2
+2025-11-04 11:16:21,332 - INFO - 🔄 Processing 3 judges for judgment: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,332 - INFO - ✓ Created judge relationship: j3 -> judge6
+2025-11-04 11:16:21,332 - INFO - ✓ Created judge relationship: j3 -> judge7
+2025-11-04 11:16:21,332 - INFO - ✓ Created judge relationship: j3 -> judge8
+2025-11-04 11:16:21,332 - INFO - 🔄 Processing 2 petitioner advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,332 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate4
+2025-11-04 11:16:21,332 - INFO - ✓ Created petitioner advocate relationship: j3 -> petitioner_advocate5
+2025-11-04 11:16:21,332 - INFO - 🔄 Processing 1 respondant advocates for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,332 - INFO - ✓ Created respondant advocate relationship: j3 -> respondant_advocate5
+2025-11-04 11:16:21,332 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,332 - INFO - ✓ Created outcome relationship: j3 -> outcome1
+2025-11-04 11:16:21,332 - INFO - 🔄 Processing case duration '2021-01-05 to 2021-06-30' for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,332 - INFO - ✓ Created case duration relationship: j3 -> case_duration3
+2025-11-04 11:16:21,333 - INFO - 🔄 Processing 3 citations for: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:16:21,333 - INFO - ✓ Created citation relationship: j3 -> c4
+2025-11-04 11:16:21,333 - INFO - ✓ Created citation relationship: j3 -> c5
+2025-11-04 11:16:21,333 - INFO - ✓ Created citation relationship: j3 -> c6
+2025-11-04 11:16:21,333 - INFO - 🔄 Processing 2 judges for judgment: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,333 - INFO - ✓ Created judge relationship: j4 -> judge9
+2025-11-04 11:16:21,333 - INFO - ✓ Created judge relationship: j4 -> judge10
+2025-11-04 11:16:21,333 - INFO - 🔄 Processing 1 petitioner advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,333 - INFO - ✓ Created petitioner advocate relationship: j4 -> petitioner_advocate6
+2025-11-04 11:16:21,333 - INFO - 🔄 Processing 2 respondant advocates for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,333 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate6
+2025-11-04 11:16:21,333 - INFO - ✓ Created respondant advocate relationship: j4 -> respondant_advocate7
+2025-11-04 11:16:21,333 - INFO - 🔄 Processing outcome 'Respondent Won' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,334 - INFO - ✓ Created outcome relationship: j4 -> outcome2
+2025-11-04 11:16:21,334 - INFO - 🔄 Processing case duration '2020-04-10 to 2021-01-24' for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,334 - INFO - ✓ Created case duration relationship: j4 -> case_duration4
+2025-11-04 11:16:21,334 - INFO - 🔄 Processing 3 citations for: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:16:21,334 - INFO - ✓ Created citation relationship: j4 -> c7
+2025-11-04 11:16:21,334 - INFO - ✓ Created citation relationship: j4 -> c8
+2025-11-04 11:16:21,334 - INFO - ✓ Created citation relationship: j4 -> c9
+2025-11-04 11:16:21,334 - INFO - 🔄 Processing 3 judges for judgment: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,334 - INFO - ✓ Created judge relationship: j5 -> judge11
+2025-11-04 11:16:21,334 - INFO - ✓ Created judge relationship: j5 -> judge12
+2025-11-04 11:16:21,334 - INFO - ✓ Created judge relationship: j5 -> judge13
+2025-11-04 11:16:21,334 - INFO - 🔄 Processing 2 petitioner advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,334 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate7
+2025-11-04 11:16:21,335 - INFO - ✓ Created petitioner advocate relationship: j5 -> petitioner_advocate8
+2025-11-04 11:16:21,335 - INFO - 🔄 Processing 1 respondant advocates for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,335 - INFO - ✓ Created respondant advocate relationship: j5 -> respondant_advocate8
+2025-11-04 11:16:21,335 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,335 - INFO - ✓ Created outcome relationship: j5 -> outcome1
+2025-11-04 11:16:21,335 - INFO - 🔄 Processing case duration '2018-09-12 to 2019-07-19' for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,335 - INFO - ✓ Created case duration relationship: j5 -> case_duration5
+2025-11-04 11:16:21,335 - INFO - 🔄 Processing 2 citations for: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:16:21,335 - INFO - ✓ Created citation relationship: j5 -> c10
+2025-11-04 11:16:21,335 - INFO - ✓ Created citation relationship: j5 -> c11
+2025-11-04 11:16:21,335 - INFO - 🔄 Processing 2 judges for judgment: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,335 - INFO - ✓ Created judge relationship: j6 -> judge14
+2025-11-04 11:16:21,335 - INFO - ✓ Created judge relationship: j6 -> judge15
+2025-11-04 11:16:21,336 - INFO - 🔄 Processing 1 petitioner advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,336 - INFO - ✓ Created petitioner advocate relationship: j6 -> petitioner_advocate9
+2025-11-04 11:16:21,336 - INFO - 🔄 Processing 2 respondant advocates for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,336 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate9
+2025-11-04 11:16:21,336 - INFO - ✓ Created respondant advocate relationship: j6 -> respondant_advocate10
+2025-11-04 11:16:21,336 - INFO - 🔄 Processing outcome 'Respondent Won' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,336 - INFO - ✓ Created outcome relationship: j6 -> outcome2
+2025-11-04 11:16:21,336 - INFO - 🔄 Processing case duration '2019-11-10 to 2021-01-29' for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,336 - INFO - ✓ Created case duration relationship: j6 -> case_duration6
+2025-11-04 11:16:21,336 - INFO - 🔄 Processing 2 citations for: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:16:21,336 - INFO - ✓ Created citation relationship: j6 -> c12
+2025-11-04 11:16:21,336 - INFO - ✓ Created citation relationship: j6 -> c13
+2025-11-04 11:16:21,336 - INFO - 🔄 Processing 3 judges for judgment: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,336 - INFO - ✓ Created judge relationship: j7 -> judge16
+2025-11-04 11:16:21,337 - INFO - ✓ Created judge relationship: j7 -> judge17
+2025-11-04 11:16:21,337 - INFO - ✓ Created judge relationship: j7 -> judge18
+2025-11-04 11:16:21,337 - INFO - 🔄 Processing 1 petitioner advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,337 - INFO - ✓ Created petitioner advocate relationship: j7 -> petitioner_advocate10
+2025-11-04 11:16:21,337 - INFO - 🔄 Processing 2 respondant advocates for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,337 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate11
+2025-11-04 11:16:21,337 - INFO - ✓ Created respondant advocate relationship: j7 -> respondant_advocate12
+2025-11-04 11:16:21,337 - INFO - 🔄 Processing outcome 'Petitioner Won' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,337 - INFO - ✓ Created outcome relationship: j7 -> outcome1
+2025-11-04 11:16:21,337 - INFO - 🔄 Processing case duration '2022-02-11 to 2022-09-21' for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,337 - INFO - ✓ Created case duration relationship: j7 -> case_duration7
+2025-11-04 11:16:21,337 - INFO - 🔄 Processing 2 citations for: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:16:21,337 - INFO - ✓ Created citation relationship: j7 -> c1
+2025-11-04 11:16:21,337 - INFO - ✓ Found title match - j7 -> j1
+2025-11-04 11:16:21,338 - INFO - ✅ Combined 314 total RDF triples
+2025-11-04 11:16:21,338 - INFO - 💾 Writing RDF file: judgments.rdf
+2025-11-04 11:16:21,338 - INFO - ✅ RDF file written successfully
+2025-11-04 11:16:21,338 - INFO - 🎉 Modular RDF generation completed successfully!
+2025-11-04 11:22:46,140 - INFO - GET http://localhost:9200/ [status:200 request:0.007s]
+2025-11-04 11:22:46,144 - INFO - HEAD http://localhost:9200/ [status:200 request:0.002s]
+2025-11-04 11:22:46,147 - INFO - HEAD http://localhost:9200/graphdb_copy [status:200 request:0.003s]
+2025-11-04 11:22:46,147 - INFO - ✅ Connected to Elasticsearch at http://localhost:9200
+2025-11-04 11:22:46,147 - INFO - 🚀 RDF Generator initialized with Elasticsearch backend
+2025-11-04 11:22:46,147 - INFO - 🔄 Starting RDF generation process...
+2025-11-04 11:22:46,147 - INFO - 📖 Loading data from Elasticsearch index: graphdb_copy
+2025-11-04 11:22:46,152 - INFO - POST http://localhost:9200/graphdb_copy/_search [status:200 request:0.004s]
+2025-11-04 11:22:46,153 - INFO - ✅ Loaded 7 documents from Elasticsearch
+2025-11-04 11:22:46,153 - INFO - 🔄 First pass: Collecting judgment data and building mappings...
+2025-11-04 11:22:46,154 - INFO - ✅ Collected 7 judgments and built mappings
+2025-11-04 11:22:46,154 - INFO - 🔄 Second pass: Processing judgments and creating relationships...
+2025-11-04 11:22:46,154 - INFO - ✓ Processing judgment 1: M/s Rewa Tollway P. Ltd. v. The State of Madhya Pr...
+2025-11-04 11:22:46,155 - INFO - 📄 Created judge node: judge1 for 'Justice D. Y. Chandrachud...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created judge node: judge2 for 'Justice Sanjay Kishan Kaul...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created judge node: judge3 for 'Justice Indu Malhotra...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate1 for 'Mr. Mukul Rohatgi...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate2 for 'Ms. Meenakshi Arora...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created respondant_advocate node: respondant_advocate1 for 'Mr. Tushar Mehta...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created respondant_advocate node: respondant_advocate2 for 'Mr. Aman Lekhi...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created outcome node: outcome1 for 'Petitioner Won...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created case_duration node: case_duration1 for '2019-03-15 to 2019-11-18...'
+2025-11-04 11:22:46,155 - INFO - 📄 Created citation node: c1 for 'State of Uttarakhand and Ors. v. Harpal Singh Rawa...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created citation node: c2 for 'Nasiruddin and another v. State of Uttar Pradesh T...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created citation node: c3 for 'Paramjeet Batra v. State of Uttarakhand (2013) 11 ...'
+2025-11-04 11:22:46,156 - INFO - ✓ Processing judgment 2: Dr Sonia Verma & Anr. v. The State of Haryana & An...
+2025-11-04 11:22:46,156 - INFO - 📄 Created judge node: judge4 for 'Justice U. U. Lalit...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created judge node: judge5 for 'Justice Hemant Gupta...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate3 for 'Mr. Kapil Sibal...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created respondant_advocate node: respondant_advocate3 for 'Mr. Harish Salve...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created respondant_advocate node: respondant_advocate4 for 'Mr. Gopal Subramanium...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created outcome node: outcome2 for 'Respondent Won...'
+2025-11-04 11:22:46,156 - INFO - 📄 Created case_duration node: case_duration2 for '2020-07-22 to 2021-08-18...'
+2025-11-04 11:22:46,156 - INFO - ✓ Processing judgment 3: Mukesh v. The State of Madhya Pradesh & Anr....
+2025-11-04 11:22:46,157 - INFO - 📄 Created judge node: judge6 for 'Justice R. Banumathi...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created judge node: judge7 for 'Justice V. Ramasubramanian...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created judge node: judge8 for 'Justice Bela M. Trivedi...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate4 for 'Mr. Abhishek Manu Singhvi...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate5 for 'Ms. Karuna Nundy...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created respondant_advocate node: respondant_advocate5 for 'Mr. K. K. Venugopal...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created case_duration node: case_duration3 for '2021-01-05 to 2021-06-30...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created citation node: c4 for 'Mohd. Yusuf v. Rajkumar [2020] 3 SCR 649 : (2020) ...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created citation node: c5 for 'Ravinder Kaur Grewal and Others v. Manjit Kaur and...'
+2025-11-04 11:22:46,157 - INFO - 📄 Created citation node: c6 for 'Khushi Ram v. Nawal Singh [2021] 4 SCR 1019 : (202...'
+2025-11-04 11:22:46,157 - INFO - ✓ Processing judgment 4: Kaushik Narsinhbhai Patel & Ors. v. M/s S.J.R. Pri...
+2025-11-04 11:22:46,158 - INFO - 📄 Created judge node: judge9 for 'Justice A. S. Bopanna...'
+2025-11-04 11:22:46,158 - INFO - 📄 Created judge node: judge10 for 'Justice S. Abdul Nazeer...'
+2025-11-04 11:22:46,158 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate6 for 'Mr. Shyam Divan...'
+2025-11-04 11:22:46,158 - INFO - 📄 Created respondant_advocate node: respondant_advocate6 for 'Ms. Pinky Anand...'
+2025-11-04 11:22:46,158 - INFO - 📄 Created respondant_advocate node: respondant_advocate7 for 'Mr. Rakesh Dwivedi...'
+2025-11-04 11:22:46,158 - INFO - 📄 Created case_duration node: case_duration4 for '2020-04-10 to 2021-01-24...'
+2025-11-04 11:22:46,158 - INFO - 📄 Created citation node: c7 for 'Nanda Dulal Pradhan & Anr. v. Dibakar Pradhan & An...'
+2025-11-04 11:22:46,159 - INFO - 📄 Created citation node: c8 for 'Nalini Sunder v. GV Sunder AIR 2003 Kar 86...'
+2025-11-04 11:22:46,159 - INFO - 📄 Created citation node: c9 for 'R.V. Prasannakumaar & others. v. Mantri Castles Pr...'
+2025-11-04 11:22:46,159 - INFO - ✓ Processing judgment 5: Shahid Ali v. The State of Uttar Pradesh...
+2025-11-04 11:22:46,159 - INFO - 📄 Created judge node: judge11 for 'Justice Hima Kohli...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created judge node: judge12 for 'Justice J. B. Pardiwala...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created judge node: judge13 for 'Justice Surya Kant...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate7 for 'Mr. Arvind Datar...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate8 for 'Ms. Aparajita Singh...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created respondant_advocate node: respondant_advocate8 for 'Mr. Ranjit Kumar...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created case_duration node: case_duration5 for '2018-09-12 to 2019-07-19...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created citation node: c10 for 'Kunwar Pal Singh v. State of Uttarakhand, (2014) 1...'
+2025-11-04 11:22:46,160 - INFO - 📄 Created citation node: c11 for 'Bhagwan Singh v. State of Uttarakhand, (2020) 14 S...'
+2025-11-04 11:22:46,160 - INFO - ✓ Processing judgment 6: Shri Mukund Bhavan Trust and Ors. v. Shrimant Chha...
+2025-11-04 11:22:46,161 - INFO - 📄 Created judge node: judge14 for 'Justice K. M. Joseph...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created judge node: judge15 for 'Justice B. R. Gavai...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate9 for 'Mr. C. A. Sundaram...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created respondant_advocate node: respondant_advocate9 for 'Mr. P. S. Narasimha...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created respondant_advocate node: respondant_advocate10 for 'Ms. Madhavi Divan...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created case_duration node: case_duration6 for '2019-11-10 to 2021-01-29...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created citation node: c12 for 'T. Arivandandam v. T.V. Satyapal [1978] 1 SCR 742 ...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created citation node: c13 for 'Satti Paradesi Samadhi & Pillayar Temple v. M. San...'
+2025-11-04 11:22:46,161 - INFO - ✓ Processing judgment 7: Amit Rana @ Koka & Anr. v. The State of Haryana...
+2025-11-04 11:22:46,161 - INFO - 📄 Created judge node: judge16 for 'Justice Krishna Murari...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created judge node: judge17 for 'Justice P. S. Narasimha...'
+2025-11-04 11:22:46,161 - INFO - 📄 Created judge node: judge18 for 'Justice Aniruddha Bose...'
+2025-11-04 11:22:46,162 - INFO - 📄 Created petitioner_advocate node: petitioner_advocate10 for 'Mr. Sidharth Luthra...'
+2025-11-04 11:22:46,162 - INFO - 📄 Created respondant_advocate node: respondant_advocate11 for 'Mr. Maninder Singh...'
+2025-11-04 11:22:46,162 - INFO - 📄 Created respondant_advocate node: respondant_advocate12 for 'Mr. Vikramjit Banerjee...'
+2025-11-04 11:22:46,162 - INFO - 📄 Created case_duration node: case_duration7 for '2022-02-11 to 2022-09-21...'
+2025-11-04 11:22:46,162 - INFO - 💾 Writing RDF file: judgments.rdf
+2025-11-04 11:22:46,162 - INFO - ✅ RDF file written successfully
+2025-11-04 11:22:46,163 - INFO - 🎉 RDF generation completed successfully!

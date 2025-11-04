@@ -1,0 +1,17 @@
+# 🐍 Python Virtual Environment
+.venv/
+
+# 🔐 Environment Variables
+.env
+
+# 🧠 Python Cache Files
+__pycache__/
+*.pyc
+
+# 🧾 Log Files
+*.log
+
+# 🧰 Local Utility Scripts (optional — if you don’t want to track them)
+elasticsearch_upload.py
+index_copy.py
+
