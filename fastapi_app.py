@@ -458,9 +458,11 @@ async def shutdown_event():
 if __name__ == "__main__":
     import uvicorn
     
-    # Get host and port from environment or use defaults
-    host = "0.0.0.0"
-    port = 8003
+    # Get configuration from config
+    fastapi_config = config.get_fastapi_config()
+    host = fastapi_config['host']
+    port = fastapi_config['port']
+    reload = fastapi_config['reload']
     
     logger.info(f"🚀 Starting FastAPI server on {host}:{port}")
     logger.info(f"📚 API documentation available at http://{host}:{port}/docs")
@@ -469,6 +471,6 @@ if __name__ == "__main__":
         "fastapi_app:app",
         host=host,
         port=port,
-        reload=True,
+        reload=reload,
         log_level="info"
     )
