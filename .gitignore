@@ -15,4 +15,6 @@ __pycache__/
 elasticsearch_upload.py
 index_copy.py
 judgments.rdf
+es_index_inspector.py
+
 

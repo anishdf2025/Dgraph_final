@@ -261,8 +261,18 @@ class ElasticsearchUploader:
     def _filter_new_documents(self, df: pd.DataFrame) -> pd.DataFrame:
         """Filter out documents that already exist in Elasticsearch."""
         try:
+            # If Excel does not include doc_id column, cannot filter by ES _id — upload all
+            if 'doc_id' not in df.columns:
+                logger.info("📝 No 'doc_id' column in Excel; will let Elasticsearch assign IDs and upload all rows")
+                return df
+
+            # If doc_id column exists but all values are empty, skip filtering
+            if df['doc_id'].isnull().all() or (df['doc_id'].astype(str).str.strip() == '').all():
+                logger.info("📝 'doc_id' column present but empty; will let Elasticsearch assign IDs and upload all rows")
+                return df
+
             existing_ids = self._get_existing_doc_ids()
-            
+
             if not existing_ids:
                 logger.info("📝 No existing documents found, all documents will be added")
                 return df
@@ -316,10 +326,14 @@ class ElasticsearchUploader:
         # Basic fields - only Excel content
         doc = {
             "title": self._sanitize_string(row.get('Title', 'Untitled')),
-            "doc_id": self._sanitize_string(row.get('doc_id', 'unknown')),
             "outcome": self._sanitize_string(row.get('Outcome', '')),
             "case_duration": self._sanitize_string(row.get('Case Duration', ''))
         }
+
+        # Add doc_id only if present in Excel (allow ES to auto-generate otherwise)
+        raw_doc_id = self._sanitize_string(row.get('doc_id', ''))
+        if raw_doc_id:
+            doc["doc_id"] = raw_doc_id
         
         # Year field
         year_value = row.get('Year')
@@ -369,12 +383,17 @@ class ElasticsearchUploader:
         """
         for idx, row in df.iterrows():
             doc = self._prepare_document(row, idx + 1)
-            
-            yield {
+
+            action = {
                 "_index": self.index_name,
-                "_id": doc["doc_id"],
                 "_source": doc
             }
+
+            # Include _id only if doc_id was provided in Excel
+            if doc.get("doc_id"):
+                action["_id"] = doc["doc_id"]
+
+            yield action
     
     def _upload_documents(self, df: pd.DataFrame) -> int:
         """
@@ -453,8 +472,13 @@ class ElasticsearchUploader:
             # Create index if it doesn't exist (don't delete existing data)
             self._create_index_if_not_exists()
             
-            # Filter out documents that already exist
-            new_df = self._filter_new_documents(original_df)
+            # Decide whether to filter based on presence of doc_id column
+            if 'doc_id' in original_df.columns and not (original_df['doc_id'].isnull().all() or (original_df['doc_id'].astype(str).str.strip() == '').all()):
+                new_df = self._filter_new_documents(original_df)
+            else:
+                # No doc_id provided — upload all and let ES assign IDs
+                new_df = original_df
+                logger.info("📝 Uploading all rows; Elasticsearch will assign document IDs")
             
             # Upload only new documents
             uploaded_count = self._upload_documents(new_df)

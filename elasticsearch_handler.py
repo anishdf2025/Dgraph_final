@@ -9,7 +9,7 @@ Date: November 2025
 """
 
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import pandas as pd
 from elasticsearch import Elasticsearch
 
@@ -23,59 +23,119 @@ class ElasticsearchHandler:
     Handles all Elasticsearch operations for the RDF generator.
     """
     
-    def __init__(self):
-        """Initialize the Elasticsearch handler."""
+    def __init__(self, index_name: Optional[str] = None, doc_ids: Optional[List[str]] = None):
+        """Initialize the Elasticsearch handler.
+
+        Args:
+            index_name: Optional ES index name to override config (default: config index)
+            doc_ids: Optional list of document ids to limit loading to specific documents
+        """
         self.logger = setup_logging()
         self.es_config = config.get_elasticsearch_config()
+
+        # Allow overriding index and optional specific doc ids
+        self.index_name = index_name or self.es_config['index']
+        self.doc_ids = doc_ids
+        self._index_field_names: Dict[str, List[str]] = {}
         
         # Initialize Elasticsearch client
         try:
             self.es = Elasticsearch([self.es_config['host']])
             
-            if not validate_elasticsearch_connection(self.es, self.es_config['index']):
-                raise ConnectionError(f"Cannot connect to Elasticsearch at {self.es_config['host']}")
+            if not validate_elasticsearch_connection(self.es, self.index_name):
+                raise ConnectionError(f"Cannot connect to Elasticsearch at {self.es_config['host']} or index '{self.index_name}' missing")
                 
-            self.logger.info(f"✅ Connected to Elasticsearch at {self.es_config['host']}")
+            self.logger.info(f"✅ Connected to Elasticsearch at {self.es_config['host']} (index: {self.index_name})")
             
         except Exception as e:
             self.logger.error(f"❌ Failed to connect to Elasticsearch: {e}")
             raise
     
-    def load_documents(self) -> pd.DataFrame:
+    def _get_index_fields(self, index: str) -> List[str]:
+        """
+        Retrieve field names for an index (cached).
+        """
+        if index in self._index_field_names:
+            return self._index_field_names[index]
+
+        try:
+            mapping = self.es.indices.get_mapping(index=index)
+            # mapping structure: {index: {"mappings": {"properties": {...}}}}
+            props = {}
+            for idx_name, m in mapping.items():
+                mp = m.get('mappings', {}).get('properties', {})
+                props.update(mp)
+            field_names = list(props.keys())
+            self._index_field_names[index] = field_names
+            return field_names
+        except Exception:
+            return []
+    
+    def load_documents(self, index_name: Optional[str] = None, doc_ids: Optional[List[str]] = None) -> pd.DataFrame:
         """
         Load and process documents from Elasticsearch.
-        
+
+        If doc_ids is provided (list of document _id values), use mget to fetch only those documents.
+        Otherwise, perform a match_all search limited by config.MAX_DOCUMENTS.
+
+        Args:
+            index_name: Optional index name to override the handler's index
+            doc_ids: Optional list of document ids to fetch
+
         Returns:
             pd.DataFrame: Processed judgment documents
-            
+
         Raises:
             Exception: If documents cannot be loaded
         """
         try:
-            self.logger.info(f"📖 Loading data from Elasticsearch index: {self.es_config['index']}")
-            
-            # Query all documents from the index
-            query = {
-                "query": {
-                    "match_all": {}
-                },
-                "size": config.MAX_DOCUMENTS
-            }
-            
-            response = self.es.search(index=self.es_config['index'], body=query)
-            hits = response['hits']['hits']
-            
-            if not hits:
-                raise ValueError("No documents found in Elasticsearch index")
-            
-            # Process documents
+            index = index_name or self.index_name
+            ids_to_fetch = doc_ids or self.doc_ids
+
+            self.logger.info(f"📖 Loading data from Elasticsearch index: {index}")
+
             documents = []
-            for hit in hits:
-                doc = self._process_document(hit['_source'])
-                documents.append(doc)
-            
+
+            index_fields = self._get_index_fields(index)
+
+            if ids_to_fetch:
+                # Use mget to fetch specific documents by their ES _id
+                self.logger.info(f"🔎 Fetching {len(ids_to_fetch)} specific document(s) by doc_id")
+                mget_body = {"ids": ids_to_fetch}
+                response = self.es.mget(body=mget_body, index=index)
+                docs = response.get('docs', [])
+                hits = [doc for doc in docs if doc.get('found')]
+
+                if not hits:
+                    raise ValueError("No documents found for the provided doc_id(s) in Elasticsearch index")
+
+                for doc in hits:
+                    src = doc.get('_source', {}) or {}
+                    es_id = doc.get('_id')
+                    documents.append(self._process_document(src, es_id, index_fields))
+
+            else:
+                # Query all documents from the index
+                query = {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "size": config.MAX_DOCUMENTS
+                }
+                response = self.es.search(index=index, body=query)
+                hits = response['hits']['hits']
+
+                if not hits:
+                    raise ValueError("No documents found in Elasticsearch index")
+
+                # Process documents
+                for hit in hits:
+                    src = hit.get('_source', {}) or {}
+                    es_id = hit.get('_id')
+                    documents.append(self._process_document(src, es_id, index_fields))
+
             df = pd.DataFrame([doc.__dict__ for doc in documents])
-            
+
             self.logger.info(f"✅ Loaded {len(df)} documents from Elasticsearch")
             return df
             
@@ -83,36 +143,72 @@ class ElasticsearchHandler:
             self.logger.error(f"❌ Failed to load data from Elasticsearch: {e}")
             raise
     
-    def _process_document(self, raw_doc: Dict[str, Any]) -> ElasticsearchDocument:
+    def _process_document(self, raw_doc: Dict[str, Any], es_id: Optional[str] = None, index_fields: Optional[List[str]] = None) -> ElasticsearchDocument:
         """
         Process a raw Elasticsearch document into a structured format.
-        
-        Args:
-            raw_doc: Raw document from Elasticsearch
-            
-        Returns:
-            ElasticsearchDocument: Processed document
+
+        This version uses exact field names from the index mapping (index_fields)
+        rather than a predefined set of aliases. If a canonical field name
+        (e.g. 'title', 'doc_id', 'citations') exists in index_fields it will be
+        used; otherwise the field will be considered missing. For doc_id, if no
+        matching field is found, ES document _id (es_id) is used as fallback.
         """
-        # Extract and sanitize basic fields
-        title = sanitize_string(raw_doc.get('title', 'Untitled'))
-        doc_id = sanitize_string(raw_doc.get('doc_id', 'unknown'))
-        case_duration = sanitize_string(raw_doc.get('case_duration', ''))
-        outcome = sanitize_string(raw_doc.get('outcome', ''))
-        
-        # Handle year field
-        year = raw_doc.get('year')
-        if year is not None:
+        index_fields = index_fields or []
+
+        # Canonical names we expect in the index mapping
+        canonical_fields = {
+            'title': 'title',
+            'doc_id': 'doc_id',
+            'year': 'year',
+            'citations': 'citations',
+            'judges': 'judges',
+            'petitioner_advocates': 'petitioner_advocates',
+            'respondant_advocates': 'respondant_advocates',
+            'outcome': 'outcome',
+            'case_duration': 'case_duration'
+        }
+
+        # Helper to get value only if the exact field exists in index mapping
+        def get_exact(field_name: str):
+            if field_name in index_fields and field_name in raw_doc:
+                return raw_doc.get(field_name)
+            # If index_fields don't include the canonical name, do not fallback to aliases
+            return None
+
+        # Resolve values using exact field names from index mapping
+        title_val = get_exact(canonical_fields['title']) or 'Untitled'
+        docid_val = get_exact(canonical_fields['doc_id'])
+        if not docid_val and es_id:
+            docid_val = es_id
+        case_duration_val = get_exact(canonical_fields['case_duration']) or ''
+        outcome_val = get_exact(canonical_fields['outcome']) or ''
+
+        # Year handling
+        year_raw = get_exact(canonical_fields['year'])
+        year = None
+        if year_raw is not None:
             try:
-                year = int(year)
+                year = int(year_raw)
             except (ValueError, TypeError):
                 year = None
-        
-        # Process list fields
-        citations = self._process_list_field(raw_doc.get('citations', []))
-        judges = self._process_list_field(raw_doc.get('judges', []))
-        petitioner_advocates = self._process_list_field(raw_doc.get('petitioner_advocates', []))
-        respondant_advocates = self._process_list_field(raw_doc.get('respondant_advocates', []))
-        
+
+        # Process list fields (only if exact field exists)
+        citations_raw = get_exact(canonical_fields['citations']) or []
+        judges_raw = get_exact(canonical_fields['judges']) or []
+        petitioner_raw = get_exact(canonical_fields['petitioner_advocates']) or []
+        respondant_raw = get_exact(canonical_fields['respondant_advocates']) or []
+
+        citations = self._process_list_field(citations_raw)
+        judges = self._process_list_field(judges_raw)
+        petitioner_advocates = self._process_list_field(petitioner_raw)
+        respondant_advocates = self._process_list_field(respondant_raw)
+
+        # Sanitize title and other strings
+        title = sanitize_string(title_val)
+        doc_id = sanitize_string(docid_val) if docid_val is not None else sanitize_string(es_id or 'unknown')
+        case_duration = sanitize_string(case_duration_val)
+        outcome = sanitize_string(outcome_val)
+
         return ElasticsearchDocument(
             title=title,
             doc_id=doc_id,
