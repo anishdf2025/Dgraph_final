@@ -367,16 +367,21 @@ class IncrementalRDFProcessor:
             
             current_dir = Path.cwd().absolute()
             
+            # Get configuration
+            dgraph_config = config.get_dgraph_config()
+            docker_config = config.get_docker_config()
+            output_config = config.get_output_config()
+            
             live_cmd = [
                 "docker", "run", "--rm",
-                "--network", "dgraph-net",
+                "--network", docker_config['network'],
                 "-v", f"{current_dir}:/data",
-                "dgraph/dgraph:v23.1.0",
+                docker_config['dgraph_image'],
                 "dgraph", "live",
-                "--files", "/data/judgments.rdf",
-                "--schema", "/data/rdf.schema",
-                "--alpha", "dgraph-standalone:9080",
-                "--zero", "dgraph-standalone:5080",
+                "--files", f"/data/{output_config['rdf_file']}",
+                "--schema", f"/data/{output_config['schema_file']}",
+                "--alpha", dgraph_config['host'],
+                "--zero", dgraph_config['zero'],
                 "--upsertPredicate", "doc_id",
                 "--upsertPredicate", "judge_id",
                 "--upsertPredicate", "advocate_id",

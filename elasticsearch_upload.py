@@ -20,6 +20,8 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from datetime import datetime
 
+from config import config
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -37,25 +39,32 @@ class ElasticsearchUploader:
     Elasticsearch uploader for legal judgment data.
     """
     
-    def __init__(self, excel_file_path: str, es_host: str = "http://192.168.1.170:9200", index_name: str = "graphdb"):
+    # Default Excel file path (can be overridden in __init__)
+    DEFAULT_EXCEL_PATH = '/home/anish/Desktop/Anish/Dgraph_final/excel_2024_2025/FINAL/5_sample/tests.xlsx'
+    
+    def __init__(self, excel_file_path: str = None, es_host: str = None, index_name: str = None):
         """
         Initialize the Elasticsearch uploader.
         
         Args:
-            excel_file_path: Path to the Excel file
-            es_host: Elasticsearch host URL
-            index_name: Name of the index to create
+            excel_file_path: Path to the Excel file (defaults to DEFAULT_EXCEL_PATH)
+            es_host: Elasticsearch host URL (defaults to config)
+            index_name: Name of the index to create (defaults to config)
         """
-        self.excel_file_path = Path(excel_file_path)
-        self.es_host = es_host
-        self.index_name = index_name
+        # Use config values for Elasticsearch only
+        es_config = config.get_elasticsearch_config()
+        
+        # Excel path is hardcoded (user-specific)
+        self.excel_file_path = Path(excel_file_path or self.DEFAULT_EXCEL_PATH)
+        self.es_host = es_host or es_config['host']
+        self.index_name = index_name or es_config['index']
         
         # Initialize Elasticsearch client
         try:
-            self.es = Elasticsearch([es_host])
+            self.es = Elasticsearch([self.es_host])
             if not self.es.ping():
-                raise ConnectionError(f"Cannot connect to Elasticsearch at {es_host}")
-            logger.info(f"✅ Connected to Elasticsearch at {es_host}")
+                raise ConnectionError(f"Cannot connect to Elasticsearch at {self.es_host}")
+            logger.info(f"✅ Connected to Elasticsearch at {self.es_host}")
         except Exception as e:
             logger.error(f"❌ Failed to connect to Elasticsearch: {e}")
             raise
@@ -499,13 +508,15 @@ class ElasticsearchUploader:
 def main():
     """Main function to run the Elasticsearch uploader."""
     try:
-        # Configuration
-        excel_file = "/home/anish/Desktop/Anish/Dgraph_final/excel_2024_2025/FINAL/5_sample/tests.xlsx"
-        es_host = "http://localhost:9200"
-        index_name = "graphdb"
+        # Use configuration from .env file for Elasticsearch
+        # Excel file path is hardcoded (user-specific)
+        logger.info("📋 Using configuration:")
+        logger.info(f"   • Excel file: {ElasticsearchUploader.DEFAULT_EXCEL_PATH}")
+        logger.info(f"   • Elasticsearch: {config.ELASTICSEARCH_HOST}")
+        logger.info(f"   • Index: {config.ELASTICSEARCH_INDEX}")
         
         # Upload to Elasticsearch
-        uploader = ElasticsearchUploader(excel_file, es_host, index_name)
+        uploader = ElasticsearchUploader()
         uploader.upload_to_elasticsearch()
         
     except Exception as e:

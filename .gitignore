@@ -1,5 +1,58 @@
 # 🐍 Python Virtual Environment
 .venv/
+venv/
+ENV/
+env/
+
+# 🔐 Environment Variables (NEVER COMMIT THESE!)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.staging
+
+# ✅ Keep the example file
+!.env.example
+
+# 🧠 Python Cache Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# 🧾 Log Files
+*.log
+logs/
+
+# 🗄️ RDF Output Files (Generated)
+judgments.rdf
+*.rdf
+
+# 📊 IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 🧪 Test Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# 📦 Temporary Files
+*.tmp
+temp/
+tmp/l Environment
+.venv/
 
 # 🔐 Environment Variables
 .env

@@ -43,6 +43,18 @@ class Config:
     BATCH_SIZE: int = int(os.getenv('BATCH_SIZE', '100'))
     AUTO_UPLOAD: bool = os.getenv('AUTO_UPLOAD', 'true').lower() == 'true'
     
+    # FastAPI Configuration
+    FASTAPI_HOST: str = os.getenv('FASTAPI_HOST', '0.0.0.0')
+    FASTAPI_PORT: int = int(os.getenv('FASTAPI_PORT', '8003'))
+    FASTAPI_RELOAD: bool = os.getenv('FASTAPI_RELOAD', 'true').lower() == 'true'
+    
+    # Auto Processing Configuration
+    AUTO_PROCESS_INTERVAL: int = int(os.getenv('AUTO_PROCESS_INTERVAL', '60'))
+    
+    # Docker Configuration
+    DOCKER_NETWORK: str = os.getenv('DOCKER_NETWORK', 'dgraph-net')
+    DGRAPH_IMAGE: str = os.getenv('DGRAPH_IMAGE', 'dgraph/dgraph:v23.1.0')
+    
     @classmethod
     def validate(cls) -> bool:
         """
@@ -104,6 +116,23 @@ class Config:
             'max_documents': cls.MAX_DOCUMENTS,
             'batch_size': cls.BATCH_SIZE,
             'auto_upload': cls.AUTO_UPLOAD
+        }
+    
+    @classmethod
+    def get_fastapi_config(cls) -> dict:
+        """Get FastAPI configuration as a dictionary."""
+        return {
+            'host': cls.FASTAPI_HOST,
+            'port': cls.FASTAPI_PORT,
+            'reload': cls.FASTAPI_RELOAD
+        }
+    
+    @classmethod
+    def get_docker_config(cls) -> dict:
+        """Get Docker configuration as a dictionary."""
+        return {
+            'network': cls.DOCKER_NETWORK,
+            'dgraph_image': cls.DGRAPH_IMAGE
         }
 
 
