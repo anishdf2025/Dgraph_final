@@ -32,7 +32,7 @@ type CaseDuration {
   duration
 }
 
-judgment_id: string @index(exact) .
+judgment_id: string @index(exact) @upsert .
 title: string @index(exact, term, fulltext) @upsert .
 doc_id: string @index(exact) @upsert .
 year: int @index(int) .
@@ -42,10 +42,10 @@ petitioner_represented_by: [uid] @reverse .
 respondant_represented_by: [uid] @reverse .
 has_outcome: uid @reverse .
 has_case_duration: uid @reverse .
-judge_id: string @index(exact) .
+judge_id: string @index(exact) @upsert .
 name: string @index(exact, term, fulltext) @upsert .
-advocate_id: string @index(exact) .
+advocate_id: string @index(exact) @upsert .
 advocate_type: string @index(exact) .
-outcome_id: string @index(exact) .
-case_duration_id: string @index(exact) .
+outcome_id: string @index(exact) @upsert .
+case_duration_id: string @index(exact) @upsert .
 duration: string @index(exact, term) .

@@ -149,13 +149,14 @@ def validate_elasticsearch_connection(es_client, index_name: str) -> bool:
         return False
 
 
-def create_node_id(node_type: str, counter: int) -> str:
+def create_node_id(node_type: str, counter: int = None, unique_key: str = None) -> str:
     """
     Create a standardized node ID.
     
     Args:
         node_type: Type of node (judgment, judge, advocate, etc.)
-        counter: Counter value
+        counter: Counter value (optional, for backward compatibility)
+        unique_key: Unique key for generating stable IDs (e.g., doc_id, name hash)
         
     Returns:
         str: Formatted node ID
@@ -171,7 +172,20 @@ def create_node_id(node_type: str, counter: int) -> str:
     }
     
     prefix = node_type_map.get(node_type, node_type)
-    return f"{prefix}{counter}"
+    
+    # If unique_key is provided, use it to create a stable hash-based ID
+    if unique_key:
+        import hashlib
+        # Create a short hash from the unique key
+        hash_obj = hashlib.md5(unique_key.encode())
+        hash_short = hash_obj.hexdigest()[:8]
+        return f"{prefix}_{hash_short}"
+    
+    # Fallback to counter-based ID for backward compatibility
+    if counter is not None:
+        return f"{prefix}{counter}"
+    
+    raise ValueError("Either counter or unique_key must be provided")
 
 
 def format_rdf_triple(subject: str, predicate: str, obj: str, is_object_literal: bool = True) -> str:

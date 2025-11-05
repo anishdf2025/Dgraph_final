@@ -251,3 +251,221 @@ class ElasticsearchHandler:
         except Exception as e:
             self.logger.error(f"Failed to get document count: {e}")
             return 0
+    
+    def get_unprocessed_documents(self, limit: int = 100) -> List[Dict[str, str]]:
+        """
+        Get list of unprocessed documents from Elasticsearch.
+        
+        Args:
+            limit: Maximum number of documents to return
+            
+        Returns:
+            List of dictionaries with doc_id and title of unprocessed documents
+        """
+        try:
+            query = {
+                "query": {
+                    "bool": {
+                        "must_not": {
+                            "term": {"processed_to_dgraph": True}
+                        }
+                    }
+                },
+                "size": limit,
+                "_source": ["doc_id", "title"]
+            }
+            
+            response = self.es.search(index=self.index_name, body=query)
+            hits = response['hits']['hits']
+            
+            documents = []
+            for hit in hits:
+                doc_id = hit.get('_id')
+                source = hit.get('_source', {})
+                documents.append({
+                    "es_id": doc_id,
+                    "doc_id": source.get('doc_id', doc_id),
+                    "title": source.get('title', 'Untitled')
+                })
+            
+            self.logger.info(f"Found {len(documents)} unprocessed documents")
+            return documents
+            
+        except Exception as e:
+            self.logger.error(f"Failed to get unprocessed documents: {e}")
+            return []
+    
+    def get_processing_counts(self) -> Dict[str, int]:
+        """
+        Get counts of processed and unprocessed documents.
+        
+        Returns:
+            Dictionary with counts
+        """
+        try:
+            # Total documents
+            total_query = {"query": {"match_all": {}}}
+            total_response = self.es.count(index=self.index_name, body=total_query)
+            total_count = total_response['count']
+            
+            # Processed documents
+            processed_query = {
+                "query": {
+                    "term": {"processed_to_dgraph": True}
+                }
+            }
+            processed_response = self.es.count(index=self.index_name, body=processed_query)
+            processed_count = processed_response['count']
+            
+            # Unprocessed documents
+            unprocessed_count = total_count - processed_count
+            
+            return {
+                "total": total_count,
+                "processed": processed_count,
+                "unprocessed": unprocessed_count
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Failed to get processing counts: {e}")
+            return {"total": 0, "processed": 0, "unprocessed": 0}
+    
+    def mark_documents_as_processed(self, doc_ids: List[str]) -> int:
+        """
+        Mark specific documents as processed in Elasticsearch.
+        
+        Args:
+            doc_ids: List of document IDs (ES _id values) to mark as processed
+            
+        Returns:
+            Number of documents updated
+        """
+        try:
+            from datetime import datetime
+            
+            updated_count = 0
+            for doc_id in doc_ids:
+                try:
+                    # Update document with processed flag and timestamp
+                    self.es.update(
+                        index=self.index_name,
+                        id=doc_id,
+                        body={
+                            "doc": {
+                                "processed_to_dgraph": True,
+                                "processed_timestamp": datetime.now().isoformat()
+                            }
+                        }
+                    )
+                    updated_count += 1
+                except Exception as e:
+                    self.logger.error(f"Failed to update document {doc_id}: {e}")
+            
+            self.logger.info(f"✅ Marked {updated_count} documents as processed")
+            return updated_count
+            
+        except Exception as e:
+            self.logger.error(f"Failed to mark documents as processed: {e}")
+            return 0
+    
+    def reset_processed_status(self, doc_ids: Optional[List[str]] = None) -> int:
+        """
+        Reset processed status for documents (for reprocessing).
+        
+        Args:
+            doc_ids: Optional list of document IDs. If not provided, resets all documents.
+            
+        Returns:
+            Number of documents reset
+        """
+        try:
+            if doc_ids:
+                # Reset specific documents
+                reset_count = 0
+                for doc_id in doc_ids:
+                    try:
+                        self.es.update(
+                            index=self.index_name,
+                            id=doc_id,
+                            body={
+                                "doc": {
+                                    "processed_to_dgraph": False
+                                }
+                            }
+                        )
+                        reset_count += 1
+                    except Exception as e:
+                        self.logger.error(f"Failed to reset document {doc_id}: {e}")
+                
+                self.logger.info(f"✅ Reset processed status for {reset_count} documents")
+                return reset_count
+            else:
+                # Reset all documents using update_by_query
+                query = {
+                    "script": {
+                        "source": "ctx._source.processed_to_dgraph = false",
+                        "lang": "painless"
+                    },
+                    "query": {
+                        "match_all": {}
+                    }
+                }
+                
+                response = self.es.update_by_query(
+                    index=self.index_name,
+                    body=query
+                )
+                
+                reset_count = response.get('updated', 0)
+                self.logger.info(f"✅ Reset processed status for {reset_count} documents")
+                return reset_count
+                
+        except Exception as e:
+            self.logger.error(f"Failed to reset processed status: {e}")
+            return 0
+    
+    def load_unprocessed_documents(self) -> pd.DataFrame:
+        """
+        Load only unprocessed documents from Elasticsearch.
+        
+        Returns:
+            pd.DataFrame: Processed unprocessed judgment documents
+        """
+        try:
+            self.logger.info(f"📖 Loading unprocessed documents from Elasticsearch index: {self.index_name}")
+            
+            # Query for unprocessed documents
+            query = {
+                "query": {
+                    "bool": {
+                        "must_not": {
+                            "term": {"processed_to_dgraph": True}
+                        }
+                    }
+                },
+                "size": config.MAX_DOCUMENTS
+            }
+            
+            response = self.es.search(index=self.index_name, body=query)
+            hits = response['hits']['hits']
+            
+            if not hits:
+                self.logger.info("No unprocessed documents found")
+                return pd.DataFrame()
+            
+            index_fields = self._get_index_fields(self.index_name)
+            
+            documents = []
+            for hit in hits:
+                src = hit.get('_source', {}) or {}
+                es_id = hit.get('_id')
+                documents.append(self._process_document(src, es_id, index_fields))
+            
+            df = pd.DataFrame([doc.__dict__ for doc in documents])
+            
+            self.logger.info(f"✅ Loaded {len(df)} unprocessed documents from Elasticsearch")
+            return df
+            
+        except Exception as e:
+            self.logger.error(f"❌ Failed to load unprocessed documents: {e}")
+            raise
