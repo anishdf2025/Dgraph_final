@@ -156,27 +156,34 @@ async def health_check():
     Returns:
         HealthResponse: System health status
     """
+    es_connected = False
+    dgraph_configured = False
+    
     try:
-        # Check Elasticsearch connection
-        es_handler = ElasticsearchHandler()
-        es_connected = es_handler.es_client.ping()
+        # Check Elasticsearch connection directly without ElasticsearchHandler
+        from elasticsearch import Elasticsearch
+        es_config = config.get_elasticsearch_config()
+        es = Elasticsearch([es_config['host']])
+        es_connected = es.ping()
         
         # Check Dgraph configuration
         dgraph_config = config.get_dgraph_config()
         dgraph_configured = bool(dgraph_config.get('host') and dgraph_config.get('zero'))
         
+        status = "healthy" if (es_connected and dgraph_configured) else "degraded"
+        
         return HealthResponse(
-            status="healthy" if (es_connected and dgraph_configured) else "degraded",
+            status=status,
             elasticsearch_connected=es_connected,
             dgraph_configured=dgraph_configured,
             timestamp=datetime.now().isoformat()
         )
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
+        logger.error(f"Health check failed: {e}", exc_info=True)
         return HealthResponse(
             status="unhealthy",
-            elasticsearch_connected=False,
-            dgraph_configured=False,
+            elasticsearch_connected=es_connected,
+            dgraph_configured=dgraph_configured,
             timestamp=datetime.now().isoformat()
         )
 

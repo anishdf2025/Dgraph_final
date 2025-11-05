@@ -60,15 +60,3 @@ class ElasticsearchDocument:
     respondant_advocates: List[str]
     case_duration: str
     outcome: str
-
-
-@dataclass
-class NodeMapping:
-    """Data class for node mappings."""
-    citation_map: dict
-    title_to_judgment_map: dict
-    judge_map: dict
-    petitioner_advocate_map: dict
-    respondant_advocate_map: dict
-    outcome_map: dict
-    case_duration_map: dict
