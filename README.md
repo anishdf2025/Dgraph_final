@@ -141,9 +141,8 @@ python-dotenv>=1.0.0
 │
 ├── 📄 Core Application Files
 │   ├── fastapi_app.py              # Main FastAPI application (11 endpoints)
-│   ├── incremental_processor.py    # Incremental RDF processing logic
+│   ├── incremental_processor.py    # Incremental RDF processing with modular handlers
 │   ├── auto_processor.py           # Background auto-processing task
-│   ├── modular_rdf_generator.py    # Modular RDF generation engine
 │   ├── elasticsearch_upload.py     # Excel to Elasticsearch uploader
 │   └── elasticsearch_handler.py    # Elasticsearch connection handler
 │
@@ -231,9 +230,9 @@ Step 4: RDF Generation
 ┌──────────────────────────────────────────┐
 │  incremental_processor.py                │
 │  • Loads unprocessed documents           │
-│  • Calls modular_rdf_generator.py        │
-│  • Uses relationship handlers            │
+│  • Uses modular relationship handlers    │
 │  • Generates RDF triples                 │
+│  • Combines all relationships            │
 └────────┬─────────────────────────────────┘
          │
          ▼
@@ -329,30 +328,27 @@ def _parse_list_field(self, field: str) -> List[str]
 - **Auto Upload**: Optional automatic Dgraph upload
 - **Force Reprocess**: Ability to reprocess all documents
 
-### 4. Modular RDF Generator (`modular_rdf_generator.py`)
-
-**Purpose**: Generates RDF triples using modular relationship handlers.
-
 **Two-Pass Processing**:
 
 **Pass 1**: Data Collection
-- Collect all judgment data
-- Build title-to-ID mappings
-- Create node ID counters
+- Collect all judgment data from Elasticsearch
+- Build title-to-ID mappings for citation cross-references
+- Create node ID counters for each entity type
 
-**Pass 2**: Relationship Creation
-- Process judges
-- Process advocates (petitioner & respondent)
-- Process outcomes
-- Process case durations
-- Process citations with cross-references
+**Pass 2**: Relationship Creation (via Modular Handlers)
+- Process judges (via `JudgeRelationshipHandler`)
+- Process advocates - petitioner & respondent (via `AdvocateRelationshipHandler`)
+- Process outcomes (via `OutcomeRelationshipHandler`)
+- Process case durations (via `CaseDurationRelationshipHandler`)
+- Process citations with cross-references (via `CitationRelationshipHandler`)
 
 **Output Statistics**:
 - Total judgments processed
-- Total judges, advocates, outcomes, durations
+- Total judges, advocates, outcomes, durations, citations
 - Total RDF triples generated
+- Processing time and performance metrics
 
-### 5. Auto Processor (`auto_processor.py`)
+### 4. Auto Processor (`auto_processor.py`)
 
 **Purpose**: Background task that automatically processes new documents.
 
@@ -368,7 +364,7 @@ def _parse_list_field(self, field: str) -> List[str]
 - Real-time processing of uploaded documents
 - System stays synchronized automatically
 
-### 6. Excel Upload (`elasticsearch_upload.py`)
+### 5. Excel Upload (`elasticsearch_upload.py`)
 
 **Purpose**: Upload legal judgment data from Excel to Elasticsearch.
 
