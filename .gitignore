@@ -32,8 +32,10 @@ build/
 logs/
 
 # 🗄️ RDF Output Files (Generated)
-judgments.rdf
-*.rdf
+# Ignore all RDF files in the rdf folder
+rdf/*.rdf
+# But keep the rdf folder and its README
+!rdf/README.md
 
 # 📊 IDE and Editor Files
 .vscode/
@@ -51,23 +53,6 @@ htmlcov/
 # 📦 Temporary Files
 *.tmp
 temp/
-tmp/l Environment
-.venv/
-
-# 🔐 Environment Variables
-.env
-
-# 🧠 Python Cache Files
-__pycache__/
-*.pyc
-
-# 🧾 Log Files
-*.log
-
-# 🧰 Local Utility Scripts (optional — if you don’t want to track them)
-elasticsearch_upload.py
-index_copy.py
-judgments.rdf
-es_index_inspector.py
+tmp/
 
 

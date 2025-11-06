@@ -367,6 +367,10 @@ class IncrementalRDFProcessor:
         """
         try:
             output_file = Path(self.output_config['rdf_file'])
+            
+            # Ensure parent directory exists
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            
             mode = "a" if append_mode else "w"
             action = "Appending to" if append_mode else "Writing"
             
