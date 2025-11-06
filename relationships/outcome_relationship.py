@@ -28,8 +28,7 @@ class OutcomeRelationshipHandler:
         """Initialize the Outcome Relationship Handler."""
         self.logger = setup_logging()
         self.rdf_lines: List[str] = []
-        self.outcome_map: Dict[str, str] = {}
-        self.outcome_counter: int = 1
+        self.outcome_map: Dict[str, str] = {}  # Maps outcome_name -> stable node_id
         self.stats = {
             'total_outcomes': 0,
             'outcome_relationships': 0,
@@ -74,21 +73,21 @@ class OutcomeRelationshipHandler:
     
     def _get_or_create_outcome_node(self, outcome_name: str) -> str:
         """
-        Get existing outcome node or create a new one.
+        Get existing outcome node or create a new one using stable content-based ID.
         
         Args:
             outcome_name: Name/description of the outcome
             
         Returns:
-            str: Outcome node identifier
+            str: Outcome node identifier (stable across batches)
         """
         if outcome_name in self.outcome_map:
             return self.outcome_map[outcome_name]
         
-        # Create new outcome node
-        outcome_node = create_node_id('outcome', self.outcome_counter)
+        # Create stable outcome node ID based on outcome name
+        # This ensures same outcome always gets same ID across different batches
+        outcome_node = create_node_id('outcome', unique_key=outcome_name)
         self.outcome_map[outcome_name] = outcome_node
-        self.outcome_counter += 1
         
         # Add outcome node properties
         outcome_triples = [

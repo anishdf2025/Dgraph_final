@@ -29,8 +29,7 @@ class JudgeRelationshipHandler:
         """Initialize the Judge Relationship Handler."""
         self.logger = setup_logging()
         self.rdf_lines: List[str] = []
-        self.judge_map: Dict[str, str] = {}
-        self.judge_counter: int = 1
+        self.judge_map: Dict[str, str] = {}  # Maps judge_name -> stable judge_node_id
         self.stats = {
             'total_judges': 0,
             'judge_relationships': 0,
@@ -73,21 +72,21 @@ class JudgeRelationshipHandler:
     
     def _get_or_create_judge_node(self, judge_name: str) -> str:
         """
-        Get existing judge node or create a new one.
+        Get existing judge node or create a new one using stable content-based ID.
         
         Args:
             judge_name: Name of the judge
             
         Returns:
-            str: Judge node identifier
+            str: Judge node identifier (stable across batches)
         """
         if judge_name in self.judge_map:
             return self.judge_map[judge_name]
         
-        # Create new judge node
-        judge_node = create_node_id('judge', self.judge_counter)
+        # Create stable judge node ID based on judge name
+        # This ensures same judge always gets same ID across different batches
+        judge_node = create_node_id('judge', unique_key=judge_name)
         self.judge_map[judge_name] = judge_node
-        self.judge_counter += 1
         
         # Add judge node properties
         judge_triples = [

@@ -28,8 +28,7 @@ class CaseDurationRelationshipHandler:
         """Initialize the Case Duration Relationship Handler."""
         self.logger = setup_logging()
         self.rdf_lines: List[str] = []
-        self.case_duration_map: Dict[str, str] = {}
-        self.case_duration_counter: int = 1
+        self.case_duration_map: Dict[str, str] = {}  # Maps duration_info -> stable node_id
         self.stats = {
             'total_case_durations': 0,
             'case_duration_relationships': 0,
@@ -74,21 +73,21 @@ class CaseDurationRelationshipHandler:
     
     def _get_or_create_case_duration_node(self, duration_info: str) -> str:
         """
-        Get existing case duration node or create a new one.
+        Get existing case duration node or create a new one using stable content-based ID.
         
         Args:
             duration_info: Duration information (e.g., "2019-03-15 to 2019-11-18")
             
         Returns:
-            str: Case duration node identifier
+            str: Case duration node identifier (stable across batches)
         """
         if duration_info in self.case_duration_map:
             return self.case_duration_map[duration_info]
         
-        # Create new case duration node
-        duration_node = create_node_id('case_duration', self.case_duration_counter)
+        # Create stable case duration node ID based on duration info
+        # This ensures same duration always gets same ID across different batches
+        duration_node = create_node_id('case_duration', unique_key=duration_info)
         self.case_duration_map[duration_info] = duration_node
-        self.case_duration_counter += 1
         
         # Add case duration node properties
         duration_triples = [

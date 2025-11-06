@@ -69,15 +69,22 @@ class IncrementalRDFProcessor:
         self, 
         doc_ids: Optional[List[str]] = None,
         force_reprocess: bool = False,
-        auto_upload: bool = True
+        auto_upload: bool = True,
+        append_mode: bool = False,
+        cleanup_rdf: bool = True
     ) -> Dict:
         """
         Process documents incrementally (only unprocessed ones).
+        
+        Each run creates a FRESH RDF file with only the new documents.
+        Dgraph upsert handles linking to existing nodes automatically.
         
         Args:
             doc_ids: Optional list of specific document IDs to process
             force_reprocess: If True, reprocess even if already processed
             auto_upload: If True, automatically upload to Dgraph
+            append_mode: If True, append to existing RDF file (default: False - create fresh file)
+            cleanup_rdf: If True, delete RDF file after successful upload (default: True)
             
         Returns:
             Dictionary with processing statistics
@@ -125,7 +132,7 @@ class IncrementalRDFProcessor:
             self._process_judgments_and_relationships()
             self._combine_all_triples()
             self._calculate_final_stats()
-            self._write_rdf_file()
+            self._write_rdf_file(append_mode=append_mode)
             
             # Upload to Dgraph if enabled
             if auto_upload:
@@ -135,6 +142,10 @@ class IncrementalRDFProcessor:
                 self.logger.info("📝 Marking documents as processed in Elasticsearch...")
                 updated_count = es_handler.mark_documents_as_processed(self.processed_doc_ids)
                 self.logger.info(f"✅ Marked {updated_count} documents as processed")
+                
+                # Clean up RDF file after successful upload
+                if cleanup_rdf:
+                    self._cleanup_rdf_file()
             
             # Print summary
             self._print_summary()
@@ -240,14 +251,17 @@ class IncrementalRDFProcessor:
             self._process_citation_relationships(judgment)
     
     def _create_judgment_triples(self, judgment: JudgmentData) -> None:
-        """Create RDF triples for a judgment."""
+        """Create RDF triples for a judgment with timestamp."""
+        from datetime import datetime
+        
         node = judgment.judgment_node
         
         judgment_triples = [
             format_rdf_triple(node, 'judgment_id', node),
             format_rdf_triple(node, 'title', judgment.title),
             format_rdf_triple(node, 'doc_id', judgment.doc_id),
-            format_rdf_triple(node, 'dgraph.type', 'Judgment')
+            format_rdf_triple(node, 'dgraph.type', 'Judgment'),
+            format_rdf_triple(node, 'processed_timestamp', datetime.now().isoformat())
         ]
         
         if judgment.year is not None:
@@ -344,26 +358,43 @@ class IncrementalRDFProcessor:
         self.stats.citation_matches = citation_stats['citation_matches']
         self.stats.title_matches = citation_stats['title_matches']
     
-    def _write_rdf_file(self) -> None:
-        """Write RDF triples to output file."""
+    def _write_rdf_file(self, append_mode: bool = False) -> None:
+        """
+        Write RDF triples to output file.
+        
+        Args:
+            append_mode: If True, append to existing file instead of overwriting
+        """
         try:
             output_file = Path(self.output_config['rdf_file'])
-            self.logger.info(f"💾 Writing RDF file: {output_file}")
+            mode = "a" if append_mode else "w"
+            action = "Appending to" if append_mode else "Writing"
             
-            with open(output_file, "w", encoding="utf-8") as f:
+            self.logger.info(f"💾 {action} RDF file: {output_file}")
+            
+            with open(output_file, mode, encoding="utf-8") as f:
+                # Add separator comment for append mode
+                if append_mode:
+                    from datetime import datetime
+                    f.write(f"\n# === Incremental update: {datetime.now().isoformat()} ===\n")
+                
                 for line in self.rdf_lines:
                     f.write(line + "\n")
             
-            self.logger.info(f"✅ RDF file written successfully")
+            self.logger.info(f"✅ RDF file written successfully ({len(self.rdf_lines)} triples)")
             
         except Exception as e:
             self.logger.error(f"❌ Failed to write RDF file: {e}")
             raise
     
     def _upload_to_dgraph(self) -> None:
-        """Upload RDF file to Dgraph using Docker Live Loader."""
+        """
+        Upload RDF file to Dgraph using Docker Live Loader.
+        Uses upsert predicates to avoid duplicate nodes and properly link new documents to existing entities.
+        """
         try:
             self.logger.info("🚀 Starting Dgraph Live Loader upload...")
+            self.logger.info("   ℹ️  Using upsert mode to link new documents with existing nodes")
             
             current_dir = Path.cwd().absolute()
             
@@ -372,6 +403,9 @@ class IncrementalRDFProcessor:
             docker_config = config.get_docker_config()
             output_config = config.get_output_config()
             
+            # Build command with all upsert predicates
+            # This ensures that when new documents reference existing entities (judges, advocates, etc.),
+            # they link to the existing nodes instead of creating duplicates
             live_cmd = [
                 "docker", "run", "--rm",
                 "--network", docker_config['network'],
@@ -382,16 +416,21 @@ class IncrementalRDFProcessor:
                 "--schema", f"/data/{output_config['schema_file']}",
                 "--alpha", dgraph_config['host'],
                 "--zero", dgraph_config['zero'],
-                "--upsertPredicate", "doc_id",
-                "--upsertPredicate", "judge_id",
-                "--upsertPredicate", "advocate_id",
-                "--upsertPredicate", "outcome_id",
-                "--upsertPredicate", "case_duration_id"
+                # Upsert predicates ensure no duplicates for these unique identifiers
+                "--upsertPredicate", "judgment_id",  # Link new citations to existing judgments
+                "--upsertPredicate", "doc_id",        # Prevent duplicate documents
+                "--upsertPredicate", "judge_id",      # Link to existing judges
+                "--upsertPredicate", "advocate_id",   # Link to existing advocates
+                "--upsertPredicate", "outcome_id",    # Link to existing outcomes
+                "--upsertPredicate", "case_duration_id"  # Link to existing case durations
             ]
+            
+            self.logger.info("   🔗 Upsert predicates enabled for: judgment_id, doc_id, judge_id, advocate_id, outcome_id, case_duration_id")
             
             result = subprocess.run(live_cmd, capture_output=True, text=True, check=True)
             
             self.logger.info("✅ Data loaded successfully into Dgraph!")
+            self.logger.info("   ℹ️  New documents are now linked to existing nodes (judges, advocates, etc.)")
             self.logger.info(f"📤 Upload output: {result.stdout}")
             
             if result.stderr:
@@ -407,6 +446,35 @@ class IncrementalRDFProcessor:
         except Exception as e:
             self.logger.error(f"❌ Unexpected error during Dgraph upload: {e}")
             raise
+    
+    def _cleanup_rdf_file(self) -> None:
+        """
+        Clean up RDF file after successful upload to keep workspace clean.
+        The file is backed up with timestamp before deletion.
+        """
+        try:
+            output_file = Path(self.output_config['rdf_file'])
+            
+            if not output_file.exists():
+                self.logger.info("ℹ️  No RDF file to clean up")
+                return
+            
+            # Create backup with timestamp
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_file = output_file.parent / f"{output_file.stem}_backup_{timestamp}{output_file.suffix}"
+            
+            # Move file to backup
+            import shutil
+            shutil.move(str(output_file), str(backup_file))
+            
+            self.logger.info(f"🗑️  RDF file backed up to: {backup_file}")
+            self.logger.info(f"✅ Workspace cleaned - RDF file removed")
+            self.logger.info(f"   ℹ️  Data is safely stored in Dgraph. RDF backup available if needed.")
+            
+        except Exception as e:
+            self.logger.warning(f"⚠️  Failed to clean up RDF file: {e}")
+            self.logger.info("   ℹ️  This is not critical - RDF file can be manually deleted")
     
     def _print_summary(self) -> None:
         """Print processing summary."""

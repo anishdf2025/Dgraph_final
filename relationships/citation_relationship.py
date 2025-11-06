@@ -29,8 +29,7 @@ class CitationRelationshipHandler:
         """Initialize the Citation Relationship Handler."""
         self.logger = setup_logging()
         self.rdf_lines: List[str] = []
-        self.citation_map: Dict[str, str] = {}
-        self.citation_counter: int = 1
+        self.citation_map: Dict[str, str] = {}  # Maps citation_title -> stable node_id
         self.title_to_judgment_map: Dict[str, str] = title_to_judgment_map or {}
         self.stats = {
             'total_citations': 0,
@@ -101,21 +100,22 @@ class CitationRelationshipHandler:
     
     def _get_or_create_citation_node(self, citation_title: str) -> str:
         """
-        Get existing citation node or create a new one.
+        Get existing citation node or create a new one using stable content-based ID.
         
         Args:
             citation_title: Title of the cited judgment
             
         Returns:
-            str: Citation node identifier
+            str: Citation node identifier (stable across batches)
         """
         if citation_title in self.citation_map:
             return self.citation_map[citation_title]
         
-        # Create new citation node
-        citation_node = create_node_id('c', self.citation_counter)
+        # Create stable citation node ID based on citation title
+        # This ensures same citation always gets same ID across different batches
+        # Using 'judgment' type since citations are also judgments
+        citation_node = create_node_id('citation', unique_key=citation_title)
         self.citation_map[citation_title] = citation_node
-        self.citation_counter += 1
         
         # Add citation node properties
         citation_triples = [

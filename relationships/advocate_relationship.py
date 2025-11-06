@@ -29,10 +29,8 @@ class AdvocateRelationshipHandler:
         """Initialize the Advocate Relationship Handler."""
         self.logger = setup_logging()
         self.rdf_lines: List[str] = []
-        self.petitioner_advocate_map: Dict[str, str] = {}
-        self.respondant_advocate_map: Dict[str, str] = {}
-        self.petitioner_advocate_counter: int = 1
-        self.respondant_advocate_counter: int = 1
+        self.petitioner_advocate_map: Dict[str, str] = {}  # Maps name -> stable node_id
+        self.respondant_advocate_map: Dict[str, str] = {}  # Maps name -> stable node_id
         self.stats = {
             'total_petitioner_advocates': 0,
             'total_respondant_advocates': 0,
@@ -114,14 +112,23 @@ class AdvocateRelationshipHandler:
         return relationship_triples
     
     def _get_or_create_petitioner_advocate_node(self, advocate_name: str) -> str:
-        """Get existing petitioner advocate node or create a new one."""
+        """
+        Get existing petitioner advocate node or create a new one using stable content-based ID.
+        
+        Args:
+            advocate_name: Name of the advocate
+            
+        Returns:
+            str: Advocate node identifier (stable across batches)
+        """
         if advocate_name in self.petitioner_advocate_map:
             return self.petitioner_advocate_map[advocate_name]
         
-        # Create new petitioner advocate node
-        advocate_node = create_node_id('petitioner_advocate', self.petitioner_advocate_counter)
+        # Create stable advocate node ID based on name + type
+        # This ensures same advocate always gets same ID across different batches
+        unique_key = f"petitioner_{advocate_name}"
+        advocate_node = create_node_id('petitioner_advocate', unique_key=unique_key)
         self.petitioner_advocate_map[advocate_name] = advocate_node
-        self.petitioner_advocate_counter += 1
         
         # Add advocate node properties
         advocate_triples = [
@@ -138,14 +145,23 @@ class AdvocateRelationshipHandler:
         return advocate_node
     
     def _get_or_create_respondant_advocate_node(self, advocate_name: str) -> str:
-        """Get existing respondant advocate node or create a new one."""
+        """
+        Get existing respondant advocate node or create a new one using stable content-based ID.
+        
+        Args:
+            advocate_name: Name of the advocate
+            
+        Returns:
+            str: Advocate node identifier (stable across batches)
+        """
         if advocate_name in self.respondant_advocate_map:
             return self.respondant_advocate_map[advocate_name]
         
-        # Create new respondant advocate node
-        advocate_node = create_node_id('respondant_advocate', self.respondant_advocate_counter)
+        # Create stable advocate node ID based on name + type
+        # This ensures same advocate always gets same ID across different batches
+        unique_key = f"respondant_{advocate_name}"
+        advocate_node = create_node_id('respondant_advocate', unique_key=unique_key)
         self.respondant_advocate_map[advocate_name] = advocate_node
-        self.respondant_advocate_counter += 1
         
         # Add advocate node properties
         advocate_triples = [

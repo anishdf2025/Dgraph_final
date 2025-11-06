@@ -36,6 +36,7 @@ judgment_id: string @index(exact) @upsert .
 title: string @index(exact, term, fulltext) @upsert .
 doc_id: string @index(exact) @upsert .
 year: int @index(int) .
+processed_timestamp: datetime @index(hour) .
 cites: [uid] @reverse .
 judged_by: [uid] @reverse .
 petitioner_represented_by: [uid] @reverse .

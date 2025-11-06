@@ -58,6 +58,7 @@ class ProcessRequest(BaseModel):
     doc_ids: Optional[List[str]] = Field(None, description="Specific document IDs to process. If not provided, all unprocessed documents will be processed.")
     force_reprocess: bool = Field(False, description="Force reprocessing of already processed documents")
     auto_upload: bool = Field(True, description="Automatically upload to Dgraph after processing")
+    cleanup_rdf: bool = Field(True, description="Delete RDF file after successful upload (default: True)")
 
 
 class ProcessResponse(BaseModel):
@@ -86,14 +87,18 @@ class HealthResponse(BaseModel):
 
 
 # Background task for processing
-def process_documents_task(doc_ids: Optional[List[str]], force_reprocess: bool, auto_upload: bool):
+def process_documents_task(doc_ids: Optional[List[str]], force_reprocess: bool, auto_upload: bool, cleanup_rdf: bool = True):
     """
     Background task to process documents and update status.
+    
+    Creates a fresh RDF file for each batch of new documents.
+    After successful upload to Dgraph, the RDF file is backed up and deleted.
     
     Args:
         doc_ids: Optional list of specific document IDs to process
         force_reprocess: Whether to reprocess already processed documents
         auto_upload: Whether to automatically upload to Dgraph
+        cleanup_rdf: Whether to delete RDF file after successful upload
     """
     global processing_status
     
@@ -105,6 +110,7 @@ def process_documents_task(doc_ids: Optional[List[str]], force_reprocess: bool, 
         logger.info(f"   • Document IDs: {doc_ids if doc_ids else 'All unprocessed'}")
         logger.info(f"   • Force reprocess: {force_reprocess}")
         logger.info(f"   • Auto upload: {auto_upload}")
+        logger.info(f"   • Cleanup RDF: {cleanup_rdf}")
         
         # Initialize incremental processor
         processor = IncrementalRDFProcessor()
@@ -114,7 +120,9 @@ def process_documents_task(doc_ids: Optional[List[str]], force_reprocess: bool, 
         stats = processor.process_incremental(
             doc_ids=doc_ids,
             force_reprocess=force_reprocess,
-            auto_upload=auto_upload
+            auto_upload=auto_upload,
+            append_mode=False,  # Always create fresh RDF file
+            cleanup_rdf=cleanup_rdf
         )
         
         # Update status
@@ -241,7 +249,8 @@ async def process_judgments(
         process_documents_task,
         request.doc_ids,
         request.force_reprocess,
-        request.auto_upload
+        request.auto_upload,
+        request.cleanup_rdf
     )
     
     return ProcessResponse(
