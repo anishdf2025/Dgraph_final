@@ -100,22 +100,31 @@ class CitationRelationshipHandler:
     
     def _get_or_create_citation_node(self, citation_title: str) -> str:
         """
-        Get existing citation node or create a new one using stable content-based ID.
+        Get existing citation node or create a new one using UNIFIED title-based ID.
+        
+        IMPORTANT: Now uses 'judgment' type (not 'citation') to ensure unification.
+        This prevents duplicates when:
+        - A citation later becomes an actual judgment → Same ID, merged by Dgraph
+        - An actual judgment later gets cited → Same ID, no duplicate created
         
         Args:
             citation_title: Title of the cited judgment
             
         Returns:
-            str: Citation node identifier (stable across batches)
+            str: Judgment node identifier (unified with actual judgments)
         """
-        if citation_title in self.citation_map:
-            return self.citation_map[citation_title]
+        # Normalize title for consistent comparison
+        normalized_title = citation_title.lower().strip()
         
-        # Create stable citation node ID based on citation title
-        # This ensures same citation always gets same ID across different batches
-        # Using 'judgment' type since citations are also judgments
-        citation_node = create_node_id('citation', unique_key=citation_title)
-        self.citation_map[citation_title] = citation_node
+        # Check if already created in THIS batch (using normalized title as key)
+        if normalized_title in self.citation_map:
+            return self.citation_map[normalized_title]
+        
+        # Create stable ID based on citation title
+        # Using 'judgment' type (NOT 'citation') for unification with actual judgments
+        # Same title → Same ID → Dgraph merges via upsert
+        citation_node = create_node_id('judgment', unique_key=citation_title)
+        self.citation_map[normalized_title] = citation_node
         
         # Add citation node properties
         citation_triples = [

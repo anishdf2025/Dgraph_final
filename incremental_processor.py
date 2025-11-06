@@ -201,8 +201,12 @@ class IncrementalRDFProcessor:
             petitioner_advocates = row.get('petitioner_advocates', []) if isinstance(row.get('petitioner_advocates'), list) else parse_list_data(str(row.get('petitioner_advocates', '')))
             respondant_advocates = row.get('respondant_advocates', []) if isinstance(row.get('respondant_advocates'), list) else parse_list_data(str(row.get('respondant_advocates', '')))
             
-            # Use doc_id to create stable, unique judgment node IDs
-            judgment_node = create_node_id('judgment', unique_key=doc_id)
+            # CRITICAL: Use TITLE (not doc_id) to create judgment node IDs
+            # This ensures citations and actual judgments with same title get same ID
+            # Citation: "Case X" → <j_abc123> (based on title hash)
+            # Judgment: "Case X" → <j_abc123> (same ID!)
+            # Result: Dgraph merges them via upsert (no duplicates!)
+            judgment_node = create_node_id('judgment', unique_key=title)
             
             # Create judgment data object
             judgment_data = JudgmentData(

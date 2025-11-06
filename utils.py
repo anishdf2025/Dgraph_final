@@ -153,17 +153,28 @@ def create_node_id(node_type: str, counter: int = None, unique_key: str = None) 
     """
     Create a standardized node ID.
     
+    IMPORTANT: Citations and judgments now use the SAME prefix 'j' to prevent
+    duplicates when a citation later becomes an actual judgment (or vice versa).
+    
+    This ensures that:
+    - If a case is first cited → creates <j_hash123>
+    - Later that case is uploaded as actual judgment → uses same <j_hash123>
+    - Dgraph upsert merges them into ONE node
+    
     Args:
-        node_type: Type of node (judgment, judge, advocate, etc.)
+        node_type: Type of node (judgment, citation, judge, advocate, etc.)
         counter: Counter value (optional, for backward compatibility)
-        unique_key: Unique key for generating stable IDs (e.g., doc_id, name hash)
+        unique_key: Unique key for generating stable IDs (e.g., title, name)
+                   For judgments/citations: Should be the TITLE
+                   For judges: Should be the judge NAME
+                   For advocates: Should be "petitioner_name" or "respondant_name"
         
     Returns:
-        str: Formatted node ID
+        str: Formatted node ID (e.g., "j_abc12345", "judge_def67890")
     """
     node_type_map = {
         'judgment': 'j',
-        'citation': 'c',
+        'citation': 'j',  # ← UNIFIED! Citations use same prefix as judgments
         'judge': 'judge',
         'petitioner_advocate': 'petitioner_advocate',
         'respondant_advocate': 'respondant_advocate',
@@ -176,8 +187,12 @@ def create_node_id(node_type: str, counter: int = None, unique_key: str = None) 
     # If unique_key is provided, use it to create a stable hash-based ID
     if unique_key:
         import hashlib
-        # Create a short hash from the unique key
-        hash_obj = hashlib.md5(unique_key.encode())
+        # Normalize the unique_key for consistent hashing across batches
+        # For titles: lowercase and strip whitespace to handle variations
+        normalized_key = unique_key.lower().strip()
+        
+        # Create a short hash from the normalized key
+        hash_obj = hashlib.md5(normalized_key.encode())
         hash_short = hash_obj.hexdigest()[:8]
         return f"{prefix}_{hash_short}"
     

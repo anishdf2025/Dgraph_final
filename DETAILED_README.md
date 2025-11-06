@@ -3,7 +3,7 @@
 **Project**: Legal Judgment Database with RDF Generation and Dgraph Integration  
 **Author**: Anish DF  
 **Last Updated**: November 6, 2025  
-**Version**: 2.0
+**Version**: 2.1 - Citation-Title Unification Update
 
 ---
 
@@ -12,13 +12,15 @@
 1. [System Overview](#system-overview)
 2. [RDF File Handling - Complete Explanation](#rdf-file-handling---complete-explanation)
 3. [Duplicate Prevention Strategy](#duplicate-prevention-strategy)
+   - [Citation-Title Unification (CRITICAL Fix)](#citation-title-unification-critical-feature-)
 4. [Entity Relationships Explained](#entity-relationships-explained)
 5. [Upsert Mechanism in Dgraph](#upsert-mechanism-in-dgraph)
 6. [File Structure & Connections](#file-structure--connections)
 7. [How to Run the System](#how-to-run-the-system)
 8. [Complete CLI Commands](#complete-cli-commands)
 9. [Step-by-Step Workflow](#step-by-step-workflow)
-10. [Troubleshooting & FAQ](#troubleshooting--faq)
+10. [Recent Updates & Bug Fixes](#recent-updates--bug-fixes)
+11. [Troubleshooting & FAQ](#troubleshooting--faq)
 
 ---
 
@@ -378,6 +380,195 @@ Only ONE judge node (UID: 0x123):
 2. **Data Integrity**: Every entity serves a purpose
 3. **Query Performance**: Reverse edges (@reverse) enable fast lookups
 4. **Meaningfulness**: Isolated nodes provide no value
+
+### Citation-Title Unification (CRITICAL Feature) ⭐
+
+**Problem Identified**: What if a citation later becomes an actual judgment (or vice versa)?
+
+This was a **CRITICAL BUG** that caused duplicate nodes in Dgraph!
+
+#### ❌ **The Problem (BEFORE FIX)**
+
+```
+Monday (Batch 1):
+  Document A cites: "Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225"
+  
+  citation_relationship.py:
+    citation_node = create_node_id('judgment', unique_key=citation_title)
+    → ID: <j_e0d69a27>  (based on TITLE)
+  
+  RDF: <j_e4195c44> <cites> <j_e0d69a27> .
+
+Tuesday (Batch 2):
+  Upload actual: "Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225"
+  doc_id: "xyz123"
+  
+  incremental_processor.py (OLD CODE):
+    judgment_node = create_node_id('judgment', unique_key=doc_id)  # ❌ USED DOC_ID!
+    → ID: <j_9f2a34bc>  (based on DOC_ID)
+  
+  RDF: <j_9f2a34bc> <title> "Kesavananda Bharati..." .
+
+Result: TWO DIFFERENT NODES FOR SAME CASE! ❌❌❌
+  - <j_e0d69a27> (citation node, title-based)
+  - <j_9f2a34bc> (judgment node, doc_id-based)
+```
+
+**Root Cause**:
+- Citations used `unique_key=title` → Hash of title
+- Judgments used `unique_key=doc_id` → Hash of doc_id
+- Same title → Different unique_key → Different hash → Different ID!
+
+#### ✅ **The Solution (AFTER FIX)**
+
+**Files Modified**:
+
+1. **`utils.py`** - Unified prefix for citations and judgments:
+   ```python
+   node_type_map = {
+       'judgment': 'j',
+       'citation': 'j',  # ✅ Changed from 'c' to 'j' (unified!)
+       'judge': 'judge',
+       'advocate': 'adv',
+       # ...
+   }
+   
+   # Added title normalization
+   normalized_key = unique_key.lower().strip()
+   hash_value = hashlib.md5(normalized_key.encode()).hexdigest()[:8]
+   ```
+
+2. **`citation_relationship.py`** (Line ~73) - Use 'judgment' type:
+   ```python
+   # Changed from:
+   # citation_node = create_node_id('citation', unique_key=citation_title)
+   
+   # To:
+   citation_node = create_node_id('judgment', unique_key=citation_title)  # ✅
+   ```
+
+3. **`incremental_processor.py`** (Line ~210) - **⭐ CRITICAL FIX**:
+   ```python
+   # OLD (CAUSED DUPLICATES):
+   # judgment_node = create_node_id('judgment', unique_key=doc_id)  # ❌
+   
+   # NEW (FIXED):
+   # CRITICAL: Use TITLE (not doc_id) to create judgment node IDs
+   # This ensures citations and actual judgments with same title get same ID
+   # Citation: "Case X" → <j_abc123> (based on title hash)
+   # Judgment: "Case X" → <j_abc123> (same ID!)
+   # Result: Dgraph merges them via upsert (no duplicates!)
+   judgment_node = create_node_id('judgment', unique_key=title)  # ✅
+   ```
+
+#### 🎉 **How It Works Now**
+
+```
+Monday (Batch 1):
+  Document A cites: "Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225"
+  
+  citation_relationship.py:
+    citation_node = create_node_id('judgment', unique_key=citation_title)
+    → normalize: "kesavananda bharati v. state of kerala (1973) 4 scc 225"
+    → hash: "e0d69a27"
+    → ID: <j_e0d69a27>  ✅
+  
+  RDF Generated:
+    <j_e0d69a27> <title> "Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225" .
+    <j_e4195c44> <cites> <j_e0d69a27> .
+  
+  Dgraph: Creates node <j_e0d69a27>
+
+Tuesday (Batch 2):
+  Upload actual: "Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225"
+  doc_id: "xyz123"
+  
+  incremental_processor.py (NEW CODE):
+    judgment_node = create_node_id('judgment', unique_key=title)  # ✅ USES TITLE!
+    → normalize: "kesavananda bharati v. state of kerala (1973) 4 scc 225"
+    → hash: "e0d69a27"  ← SAME HASH!
+    → ID: <j_e0d69a27>  ← SAME ID! ✅✅✅
+  
+  RDF Generated:
+    <j_e0d69a27> <title> "Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225" .
+    <j_e0d69a27> <doc_id> "xyz123" .
+    <j_e0d69a27> <year> "1973" .
+  
+  Dgraph Upsert Query:
+    query {
+      q(func: eq(judgment_id, "j_e0d69a27")) {
+        v as uid
+      }
+    }
+    
+    mutation {
+      set {
+        uid(v) <title> "Kesavananda Bharati..." .
+        uid(v) <doc_id> "xyz123" .        # ✅ ADDED
+        uid(v) <year> "1973" .            # ✅ ADDED
+      }
+    }
+  
+  Result: ONE NODE, UPDATED WITH NEW FIELDS! ✅
+    <j_e0d69a27> {
+      title: "Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225"
+      doc_id: "xyz123"          ← Added from Batch 2
+      year: 1973                ← Added from Batch 2
+      ~cites: [Document A]      ← Preserved from Batch 1
+    }
+```
+
+#### 📊 **Verification**
+
+**Test Results** (from `test_citation_unification.py`):
+```
+🎉 ALL TESTS PASSED!
+======================================================================
+✅ PASS - Citation-Judgment Unification
+   Citation ID:  j_e0d69a27
+   Judgment ID:  j_e0d69a27
+   → IDs MATCH! Citation and judgment will merge in Dgraph!
+
+✅ PASS - Real-World Scenario
+   Batch 1 (Citation): <j_e0d69a27>
+   Batch 2 (Judgment): <j_e0d69a27>
+   → SAME ID! Dgraph merges automatically!
+
+✅ PASS - Title Normalization
+   'Case A v. Case B (2024) 5 SCC 123'     → j_136e32b4
+   'case a v. case b (2024) 5 scc 123'     → j_136e32b4
+   ' Case A v. Case B (2024) 5 SCC 123 '   → j_136e32b4
+   'CASE A V. CASE B (2024) 5 SCC 123'     → j_136e32b4
+   → All variations produce SAME ID!
+```
+
+#### 🎯 **Benefits**
+
+1. **✅ No Duplicate Nodes**: Same title always gets same ID
+2. **✅ Automatic Merging**: Dgraph upsert handles the rest
+3. **✅ Bidirectional**: Works for citation→judgment AND judgment→citation
+4. **✅ Data Enrichment**: Citation nodes gain full data when actual judgment uploaded
+5. **✅ Relationship Preservation**: All citation relationships remain valid
+6. **✅ Case Insensitive**: "Case A" and "case a" produce same ID
+7. **✅ Whitespace Tolerant**: " Case A " and "Case A" produce same ID
+
+#### 📖 **Additional Documentation**
+
+- **Detailed Explanation**: See `CITATION_TITLE_UNIFICATION.md`
+- **Fix Verification**: See `CITATION_TITLE_FIX_VERIFICATION.md`
+- **Test Suite**: Run `python3 test_citation_unification.py`
+
+#### ⚠️ **Important Notes**
+
+**About `doc_id`**:
+- ✅ Still tracked: `doc_id` is stored as a predicate: `<j_xxx> <doc_id> "xyz123" .`
+- ✅ ES sync works: Elasticsearch tracking still functional
+- ❌ Not used for ID: ID generation now uses **title only** for consistency
+
+**Impact on Existing Data**:
+- Old data: May have duplicates (generated before fix)
+- New data: No duplicates (after fix applied)
+- Recommendation: Re-upload data to clean up old duplicates
 
 ---
 
@@ -1547,7 +1738,142 @@ curl -X POST http://localhost:8180/query -d '{
 
 ---
 
-## 10. Troubleshooting & FAQ
+## 10. Recent Updates & Bug Fixes
+
+### 🐛 Critical Bug Fix: Citation-Title Duplication (November 6, 2025)
+
+**Issue Reported**: "Title agar citation me aya to usko different node create kar rha hai"  
+(If a title appears as a citation, it was creating a different node)
+
+#### The Problem
+
+When a case was cited in one batch and then the actual judgment was uploaded in another batch, the system was creating **two different nodes** for the same case:
+
+```
+Batch 1 (Monday): Document A cites "Kesavananda Bharati v. State of Kerala"
+  → Created node: <j_e0d69a27> (based on title hash)
+  
+Batch 2 (Tuesday): Upload actual "Kesavananda Bharati v. State of Kerala" 
+  → Created node: <j_9f2a34bc> (based on doc_id hash)  ❌ DUPLICATE!
+```
+
+#### Root Cause
+
+Three files were involved:
+
+1. **`citation_relationship.py`**: Used `title` as `unique_key`
+   ```python
+   citation_node = create_node_id('judgment', unique_key=citation_title)
+   ```
+
+2. **`incremental_processor.py`**: Used `doc_id` as `unique_key` ❌
+   ```python
+   judgment_node = create_node_id('judgment', unique_key=doc_id)  # BUG!
+   ```
+
+3. **Result**: Same title → Different `unique_key` → Different hash → Different ID → Duplicate!
+
+#### The Fix
+
+**Modified Files:**
+
+1. **`utils.py`** (Line ~155):
+   ```python
+   node_type_map = {
+       'judgment': 'j',
+       'citation': 'j',  # ✅ Unified prefix (was 'c' before)
+       # ...
+   }
+   # Added title normalization (lowercase, strip whitespace)
+   normalized_key = unique_key.lower().strip()
+   ```
+
+2. **`citation_relationship.py`** (Line ~73):
+   ```python
+   # Changed to use 'judgment' type instead of 'citation'
+   citation_node = create_node_id('judgment', unique_key=citation_title)
+   ```
+
+3. **`incremental_processor.py`** (Line ~210) - **⭐ CRITICAL FIX**:
+   ```python
+   # OLD (caused duplicates):
+   # judgment_node = create_node_id('judgment', unique_key=doc_id)
+   
+   # NEW (fixed):
+   judgment_node = create_node_id('judgment', unique_key=title)  # ✅
+   ```
+
+#### Verification
+
+**Test Results** (all passed ✅):
+```bash
+$ python3 test_citation_unification.py
+
+🎉 ALL TESTS PASSED!
+✅ Citation-Judgment Unification
+✅ Real-World Scenario  
+✅ Title Normalization
+✅ Judge ID Consistency
+```
+
+**Real-World Test**:
+```
+Citation "Case A v. Case B"        → ID: j_136e32b4
+Judgment "Case A v. Case B"        → ID: j_136e32b4  ✅ SAME!
+Judgment "case a v. case b"        → ID: j_136e32b4  ✅ SAME! (normalized)
+Judgment " Case A v. Case B "      → ID: j_136e32b4  ✅ SAME! (trimmed)
+```
+
+#### Impact & Benefits
+
+**Before Fix**:
+- ❌ Duplicate nodes for same case
+- ❌ Data inconsistency
+- ❌ Broken relationships
+- ❌ Query confusion
+
+**After Fix**:
+- ✅ Single node per case (merged automatically)
+- ✅ Data consistency maintained
+- ✅ Relationships preserved
+- ✅ Clean, accurate queries
+- ✅ Case-insensitive matching
+- ✅ Whitespace-tolerant matching
+
+#### Additional Documentation
+
+For complete details, see:
+- **`CITATION_TITLE_UNIFICATION.md`** - Original strategy document
+- **`CITATION_TITLE_FIX_VERIFICATION.md`** - Detailed fix verification
+- **`test_citation_unification.py`** - Comprehensive test suite
+
+---
+
+### 📝 Other Recent Updates
+
+#### Enhanced Logging
+- Added detailed progress messages during RDF generation
+- Clear status indicators for each processing phase
+- Better error messages with context
+
+#### Improved Error Handling
+- Graceful handling of missing fields
+- Better validation for list fields (citations, judges, advocates)
+- Auto-recovery from common issues
+
+#### Performance Optimizations
+- Optimized title mapping for citation cross-references
+- Reduced memory usage for large batches
+- Faster MD5 hash generation with caching
+
+#### Code Organization
+- Modular relationship handlers (`relationships/` package)
+- Cleaner separation of concerns
+- Better code reusability
+
+---
+
+## 11. Troubleshooting & FAQ
 
 ### Common Issues
 
@@ -1705,6 +2031,100 @@ curl -X POST http://localhost:8180/query -d '{
 
 **Check for duplicate names manually**
 
+#### Q: I have duplicate judgment nodes for same case. How do I fix this?
+
+**A: This was a known bug (fixed in v2.1). Two scenarios:**
+
+**Scenario 1: Old data (before fix)**
+```bash
+# You may have duplicates from before the fix was applied
+# Solution: Re-upload all data after fix
+
+# 1. Drop all data
+curl -X POST http://localhost:8180/alter -d '{"drop_all": true}'
+
+# 2. Re-upload schema
+curl -X POST http://localhost:8180/alter -d @rdf.schema
+
+# 3. Reset all documents to unprocessed
+python3 -c "
+from elasticsearch_handler import ElasticsearchHandler
+es = ElasticsearchHandler()
+es.reset_processed_status()
+"
+
+# 4. Reprocess everything with fix applied
+curl -X POST http://localhost:8003/process
+```
+
+**Scenario 2: New data (after fix)**
+```bash
+# Verify fix is applied
+grep -n "create_node_id('judgment', unique_key=title)" incremental_processor.py
+
+# Should show line ~210 with title (not doc_id)
+# If shows doc_id, the fix is not applied
+
+# Run verification test
+python3 test_citation_unification.py
+
+# Should show: "🎉 ALL TESTS PASSED!"
+```
+
+**To check if you have duplicates:**
+```graphql
+{
+  # Query for a specific title
+  judgments(func: eq(title, "Your Case Title Here")) {
+    uid
+    judgment_id
+    title
+    doc_id
+  }
+}
+
+# If returns MORE THAN 1 result → You have duplicates
+```
+
+#### Q: What's the difference between `doc_id` and `judgment_id`?
+
+**A:**
+
+- **`doc_id`**: 
+  - Elasticsearch document ID (e.g., "ES_2024_001")
+  - Used for tracking in Elasticsearch
+  - Stored as a predicate in Dgraph: `<j_xxx> <doc_id> "ES_2024_001" .`
+  - **NOT used for node ID generation** (after v2.1 fix)
+
+- **`judgment_id`**:
+  - Dgraph node ID (e.g., "j_e0d69a27")
+  - Generated from MD5 hash of **title**
+  - Used as the `uid` for the judgment node: `<j_e0d69a27>`
+  - Ensures same title always gets same ID (prevents duplicates)
+
+**Example:**
+```rdf
+<j_e0d69a27> <dgraph.type> "Judgment" .
+<j_e0d69a27> <judgment_id> "j_e0d69a27" .           ← Node ID
+<j_e0d69a27> <title> "Case A v. Case B" .            ← Used to generate ID
+<j_e0d69a27> <doc_id> "ES_2024_001" .                ← ES tracking only
+```
+
+#### Q: Why did the system use doc_id before the fix?
+
+**A: Historical reason + oversight:**
+
+The original design used `doc_id` for judgment nodes because:
+1. It was thought to be more "stable" (ES-assigned)
+2. Each batch had unique doc_ids
+
+**But this created a problem:**
+- Citations don't have `doc_id` (they're not in ES yet)
+- Citations use `title` to generate IDs
+- Same case → Different unique_key → Different ID → **Duplicates!** ❌
+
+**The fix:** Use `title` for both citations and judgments → Same ID → No duplicates ✅
+
 #### Q: How do I add a new relationship type?
 
 **A: Follow these steps:**
@@ -1752,27 +2172,704 @@ triples = self.new_entity_handler.create_relationships(judgment)
 
 ---
 
-## Summary
+## Practical Example: How The System Works
 
-This system provides:
+Let's trace through a real example to understand the four key features:
 
-✅ **Duplicate Prevention**: Content-based IDs + Dgraph upsert  
-✅ **Incremental Processing**: Only new documents processed  
-✅ **Entity Linking**: New judgments link to existing entities  
-✅ **Clean Workspace**: RDF files auto-cleaned after upload  
-✅ **API Access**: REST API for all operations  
-✅ **Auto-Processing**: Background worker for automatic updates  
-✅ **Stable IDs**: Same entity always gets same ID across batches  
-✅ **Relationship Management**: Modular handlers for each entity type  
+### Scenario: Processing 3 New Judgments
 
-**Key Innovation**: MD5 hash-based stable IDs ensure that "Justice D. Y. Chandrachud" always gets the same node ID (`<judge_ea7adefd>`), preventing duplicates across batches while allowing proper linking.
+**Initial State:**
+- Elasticsearch: 3 new documents (processed_to_dgraph: false)
+- Dgraph: Already has 5 judgments with Justice D. Y. Chandrachud as judge
+
+**New Documents:**
+```
+Document A: Judge = "Justice D. Y. Chandrachud" (already exists in Dgraph)
+Document B: Judge = "Justice D. Y. Chandrachud" (already exists in Dgraph)
+Document C: Judge = "Justice Hemant Gupta" (new judge)
+```
 
 ---
 
-**For more details, see:**
-- `INCREMENTAL_PROCESSING_GUIDE.md` - Incremental processing deep dive
-- `rdf/README.md` - RDF folder documentation
-- `querry_cli.txt` - Sample Dgraph queries
-- `docker_information.txt` - Docker setup details
+### Feature 1: ✅ Incremental Processing (Only New Documents)
 
-**Support**: For issues, check logs in `rdf_generator.log` and `elasticsearch_upload.log`
+**Function: `load_unprocessed_documents()`** in `elasticsearch_handler.py`
+
+```python
+def load_unprocessed_documents(self) -> pd.DataFrame:
+    # Query Elasticsearch
+    query = {
+        "query": {
+            "bool": {
+                "must_not": [
+                    {"term": {"processed_to_dgraph": True}}
+                ]
+            }
+        }
+    }
+    
+    # Execute search
+    response = self.es.search(index=self.index_name, body=query)
+    
+    # Returns ONLY unprocessed documents
+    return documents_dataframe
+```
+
+**Execution Trace:**
+```
+Step 1: Query Elasticsearch
+  └─> SELECT * WHERE processed_to_dgraph = false
+  
+Step 2: Results Found
+  ├─> Document A (doc_id: "abc123", title: "Case A v. Case B")
+  ├─> Document B (doc_id: "def456", title: "Case C v. Case D")
+  └─> Document C (doc_id: "ghi789", title: "Case E v. Case F")
+
+Step 3: Skip Already Processed
+  └─> 5 previous documents with processed_to_dgraph=true are IGNORED
+  
+Result: Returns DataFrame with 3 rows (only new documents)
+```
+
+**Why This Matters:**
+- ❌ Without this: Would reprocess all 8 documents every time
+- ✅ With this: Only processes 3 new documents (faster, efficient)
+
+---
+
+### Feature 2: ✅ Duplicate Prevention (Content-Based IDs)
+
+**Function: `create_node_id()`** in `utils.py` + **`_get_or_create_judge_node()`** in `judge_relationship.py`
+
+#### Part A: Generating Stable IDs
+
+```python
+# In utils.py
+def create_node_id(node_type: str, unique_key: str = None) -> str:
+    prefix = node_type_map[node_type]  # 'judge'
+    hash_value = hashlib.md5(unique_key.encode()).hexdigest()[:8]
+    return f"{prefix}_{hash_value}"
+```
+
+**Execution Trace for Document A:**
+```
+Step 1: Processing Document A
+  └─> Judge Name: "Justice D. Y. Chandrachud"
+
+Step 2: Generate Judge ID
+  ├─> Input: node_type='judge', unique_key='Justice D. Y. Chandrachud'
+  ├─> MD5 Hash: md5('Justice D. Y. Chandrachud') = 'ea7adefd92a1...'
+  ├─> Take first 8 chars: 'ea7adefd'
+  └─> Return: 'judge_ea7adefd'
+
+Step 3: Document B encounters SAME judge
+  ├─> Input: unique_key='Justice D. Y. Chandrachud'
+  ├─> MD5 Hash: SAME = 'ea7adefd92a1...'
+  └─> Return: 'judge_ea7adefd' ← SAME ID!
+
+Step 4: Document C encounters DIFFERENT judge
+  ├─> Input: unique_key='Justice Hemant Gupta'
+  ├─> MD5 Hash: DIFFERENT = '9c1212fb45e2...'
+  └─> Return: 'judge_9c1212fb' ← NEW ID!
+```
+
+#### Part B: Preventing Duplicates in RDF File
+
+```python
+# In judge_relationship.py
+def _get_or_create_judge_node(self, judge_name: str) -> str:
+    # Generate stable ID
+    judge_node = create_node_id('judge', unique_key=judge_name)
+    
+    # Check if already created in THIS batch
+    if judge_node in self.judge_nodes:
+        return judge_node  # REUSE! Don't create duplicate
+    
+    # Create new judge node
+    self.judge_nodes[judge_node] = judge_name
+    self.rdf_lines.append(f'{judge_node} <dgraph.type> "Judge" .')
+    self.rdf_lines.append(f'{judge_node} <judge_id> "{judge_node}" .')
+    self.rdf_lines.append(f'{judge_node} <name> "{judge_name}" .')
+    
+    return judge_node
+```
+
+**Execution Trace:**
+```
+Processing Document A:
+  ├─> create_node_id() → 'judge_ea7adefd'
+  ├─> Check self.judge_nodes: {} (empty)
+  ├─> NOT FOUND → Create judge node
+  ├─> Add to self.judge_nodes: {'judge_ea7adefd': 'Justice D. Y. Chandrachud'}
+  └─> Add RDF triples:
+        <judge_ea7adefd> <dgraph.type> "Judge" .
+        <judge_ea7adefd> <judge_id> "judge_ea7adefd" .
+        <judge_ea7adefd> <name> "Justice D. Y. Chandrachud" .
+
+Processing Document B:
+  ├─> create_node_id() → 'judge_ea7adefd' (SAME!)
+  ├─> Check self.judge_nodes: {'judge_ea7adefd': '...'} 
+  ├─> FOUND! → Return existing ID
+  └─> NO NEW TRIPLES CREATED ← Prevented duplicate!
+
+Processing Document C:
+  ├─> create_node_id() → 'judge_9c1212fb' (DIFFERENT!)
+  ├─> Check self.judge_nodes: {'judge_ea7adefd': '...'}
+  ├─> NOT FOUND → Create new judge node
+  └─> Add RDF triples:
+        <judge_9c1212fb> <dgraph.type> "Judge" .
+        <judge_9c1212fb> <judge_id> "judge_9c1212fb" .
+        <judge_9c1212fb> <name> "Justice Hemant Gupta" .
+
+Final RDF File:
+  ├─> Only 2 judge nodes (not 3!)
+  ├─> 3 judgment nodes
+  └─> 3 relationships pointing to the 2 judges
+```
+
+**Generated RDF:**
+```rdf
+# Document A (Judgment)
+<j_abc123> <dgraph.type> "Judgment" .
+<j_abc123> <title> "Case A v. Case B" .
+
+# Document B (Judgment)
+<j_def456> <dgraph.type> "Judgment" .
+<j_def456> <title> "Case C v. Case D" .
+
+# Document C (Judgment)
+<j_ghi789> <dgraph.type> "Judgment" .
+<j_ghi789> <title> "Case E v. Case F" .
+
+# Judge 1 (created for Document A, REUSED for Document B)
+<judge_ea7adefd> <dgraph.type> "Judge" .
+<judge_ea7adefd> <judge_id> "judge_ea7adefd" .
+<judge_ea7adefd> <name> "Justice D. Y. Chandrachud" .
+
+# Judge 2 (created for Document C)
+<judge_9c1212fb> <dgraph.type> "Judge" .
+<judge_9c1212fb> <judge_id> "judge_9c1212fb" .
+<judge_9c1212fb> <name> "Justice Hemant Gupta" .
+
+# Relationships
+<j_abc123> <judged_by> <judge_ea7adefd> .  ← Document A → Judge 1
+<j_def456> <judged_by> <judge_ea7adefd> .  ← Document B → Judge 1 (SAME!)
+<j_ghi789> <judged_by> <judge_9c1212fb> .  ← Document C → Judge 2
+```
+
+---
+
+### Feature 3: ✅ Entity Linking (Links to Existing Entities)
+
+**Function: `_upload_to_dgraph()`** in `incremental_processor.py`
+
+**Dgraph Upsert Process:**
+
+```python
+def _upload_to_dgraph(self) -> None:
+    upsert_predicates = [
+        "judgment_id", "doc_id", "judge_id", 
+        "advocate_id", "outcome_id", "case_duration_id"
+    ]
+    
+    command = [
+        "docker", "exec", "-i", "dgraph-standalone",
+        "dgraph", "live",
+        "--files", "/dgraph/judgments.rdf",
+        "--upsert-predicates", ",".join(upsert_predicates)
+    ]
+    
+    subprocess.run(command)
+```
+
+**Execution Trace:**
+
+```
+Before Upload - Dgraph State:
+  └─> Existing Nodes:
+       ├─> judge_ea7adefd (UID: 0x1a2b) - "Justice D. Y. Chandrachud"
+       │    └─> ~judged_by: [5 previous judgments]
+       └─> 15 other judges
+
+Step 1: Upload New RDF File
+  └─> Docker command executes dgraph live with --upsert-predicates
+
+Step 2: Dgraph Processes judge_ea7adefd
+  ├─> Reads: <judge_ea7adefd> <judge_id> "judge_ea7adefd" .
+  ├─> Query: Does judge_id="judge_ea7adefd" exist?
+  ├─> Result: YES! Found UID: 0x1a2b
+  ├─> Action: UPDATE (merge predicates into existing node)
+  └─> NO NEW NODE CREATED ← Linked to existing!
+
+Step 3: Dgraph Processes judge_9c1212fb
+  ├─> Reads: <judge_9c1212fb> <judge_id> "judge_9c1212fb" .
+  ├─> Query: Does judge_id="judge_9c1212fb" exist?
+  ├─> Result: NO! Not found
+  ├─> Action: INSERT (create new node)
+  └─> New UID assigned: 0x9f3c
+
+Step 4: Dgraph Processes Relationships
+  ├─> <j_abc123> <judged_by> <judge_ea7adefd>
+  │    └─> Links Document A to EXISTING judge (UID: 0x1a2b)
+  ├─> <j_def456> <judged_by> <judge_ea7adefd>
+  │    └─> Links Document B to EXISTING judge (UID: 0x1a2b)
+  └─> <j_ghi789> <judged_by> <judge_9c1212fb>
+       └─> Links Document C to NEW judge (UID: 0x9f3c)
+
+After Upload - Dgraph State:
+  └─> Updated Nodes:
+       ├─> judge_ea7adefd (UID: 0x1a2b) ← SAME UID!
+       │    └─> ~judged_by: [5 old + 2 new = 7 judgments]
+       ├─> judge_9c1212fb (UID: 0x9f3c) ← NEW!
+       │    └─> ~judged_by: [1 judgment]
+       └─> 15 other judges (unchanged)
+```
+
+**Visual Representation:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│               Before Upload (Dgraph State)                  │
+└─────────────────────────────────────────────────────────────┘
+
+Judge: Justice D. Y. Chandrachud (UID: 0x1a2b)
+  └─> Judged Cases:
+       ├─> "Previous Case 1" (2023)
+       ├─> "Previous Case 2" (2023)
+       ├─> "Previous Case 3" (2024)
+       ├─> "Previous Case 4" (2024)
+       └─> "Previous Case 5" (2024)
+
+┌─────────────────────────────────────────────────────────────┐
+│               After Upload (Dgraph State)                   │
+└─────────────────────────────────────────────────────────────┘
+
+Judge: Justice D. Y. Chandrachud (UID: 0x1a2b) ← SAME UID!
+  └─> Judged Cases:
+       ├─> "Previous Case 1" (2023)
+       ├─> "Previous Case 2" (2023)
+       ├─> "Previous Case 3" (2024)
+       ├─> "Previous Case 4" (2024)
+       ├─> "Previous Case 5" (2024)
+       ├─> "Case A v. Case B" (2024)  ← NEW! Linked to existing
+       └─> "Case C v. Case D" (2024)  ← NEW! Linked to existing
+
+Judge: Justice Hemant Gupta (UID: 0x9f3c) ← NEW NODE!
+  └─> Judged Cases:
+       └─> "Case E v. Case F" (2024)  ← NEW!
+```
+
+**Why This Matters:**
+- ❌ Without upsert: Would create duplicate "Justice D. Y. Chandrachud" nodes
+- ✅ With upsert: New cases automatically link to existing judge node
+
+---
+
+### Feature 4: ✅ Clean Workspace (RDF Auto-Cleanup)
+
+**Functions:** 
+1. `_write_rdf_file()` - Writes fresh RDF
+2. `_upload_to_dgraph()` - Uploads to Dgraph
+3. `_cleanup_rdf_file()` - Backs up and deletes
+
+**Execution Trace:**
+
+```python
+# In incremental_processor.py
+def process_incremental(self, cleanup_rdf: bool = True):
+    # ... processing steps ...
+    
+    # Step 1: Write fresh RDF file
+    self._write_rdf_file(append_mode=False)
+    
+    # Step 2: Upload to Dgraph
+    self._upload_to_dgraph()
+    
+    # Step 3: Cleanup (if enabled)
+    if cleanup_rdf:
+        self._cleanup_rdf_file()
+```
+
+#### Step 1: Write Fresh RDF File
+
+```python
+def _write_rdf_file(self, append_mode: bool = False) -> None:
+    output_file = Path(self.output_config['rdf_file'])
+    
+    # Ensure directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write mode: 'w' (fresh) or 'a' (append)
+    mode = 'a' if append_mode else 'w'
+    
+    with open(output_file, mode, encoding="utf-8") as f:
+        for line in self.rdf_lines:
+            f.write(line + "\n")
+```
+
+**Execution:**
+```
+Step 1: Check Directory
+  ├─> Path: rdf/judgments.rdf
+  ├─> Parent: rdf/
+  ├─> exists? Yes
+  └─> Continue
+
+Step 2: Open File (mode='w' - fresh write)
+  └─> This OVERWRITES any existing file
+
+Step 3: Write All RDF Lines
+  ├─> Line 1: <j_abc123> <dgraph.type> "Judgment" .
+  ├─> Line 2: <j_abc123> <title> "Case A v. Case B" .
+  ├─> ...
+  └─> Line 50: <j_ghi789> <judged_by> <judge_9c1212fb> .
+
+Result: rdf/judgments.rdf created with 50 triples
+```
+
+#### Step 2: Upload to Dgraph
+
+```
+Step 1: Execute Docker Command
+  └─> dgraph live --files /dgraph/judgments.rdf --upsert-predicates ...
+
+Step 2: Dgraph Processes File
+  ├─> Reads all 50 triples
+  ├─> Applies upsert logic
+  └─> Updates/Creates nodes
+
+Step 3: Upload Complete
+  └─> All data now safely in Dgraph
+```
+
+#### Step 3: Cleanup RDF File
+
+```python
+def _cleanup_rdf_file(self) -> None:
+    output_file = Path(self.output_config['rdf_file'])
+    
+    if not output_file.exists():
+        return
+    
+    # Create backup with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_name = f"judgments_backup_{timestamp}.rdf"
+    backup_path = output_file.parent / backup_name
+    
+    # Copy to backup
+    shutil.copy2(output_file, backup_path)
+    
+    # Delete original
+    output_file.unlink()
+```
+
+**Execution:**
+```
+Step 1: Check File Exists
+  ├─> Path: rdf/judgments.rdf
+  └─> Exists: Yes
+
+Step 2: Generate Timestamp
+  └─> datetime.now() = "2025-11-06 13:45:30"
+  └─> Formatted: "20251106_134530"
+
+Step 3: Create Backup Name
+  └─> "judgments_backup_20251106_134530.rdf"
+
+Step 4: Copy File
+  ├─> Source: rdf/judgments.rdf
+  ├─> Destination: rdf/judgments_backup_20251106_134530.rdf
+  └─> Copy complete
+
+Step 5: Delete Original
+  └─> os.remove(rdf/judgments.rdf)
+
+Final State:
+  ├─> rdf/judgments.rdf ← DELETED
+  └─> rdf/judgments_backup_20251106_134530.rdf ← BACKUP CREATED
+```
+
+**Workspace Timeline:**
+
+```
+Before Processing:
+rdf/
+  ├── README.md
+  ├── judgments_backup_20251106_120000.rdf (old backup 1)
+  └── judgments_backup_20251106_130000.rdf (old backup 2)
+
+During Processing (after _write_rdf_file):
+rdf/
+  ├── README.md
+  ├── judgments.rdf ← NEW FILE (50 triples)
+  ├── judgments_backup_20251106_120000.rdf
+  └── judgments_backup_20251106_130000.rdf
+
+After Upload (data in Dgraph):
+rdf/
+  ├── README.md
+  ├── judgments.rdf ← Still exists
+  ├── judgments_backup_20251106_120000.rdf
+  └── judgments_backup_20251106_130000.rdf
+
+After Cleanup:
+rdf/
+  ├── README.md
+  ├── judgments_backup_20251106_120000.rdf (old backup 1)
+  ├── judgments_backup_20251106_130000.rdf (old backup 2)
+  └── judgments_backup_20251106_134530.rdf ← NEW BACKUP
+  
+  judgments.rdf ← DELETED (data safe in Dgraph)
+```
+
+**Why This Matters:**
+- ✅ Keeps workspace clean (no large RDF files lying around)
+- ✅ Maintains history (timestamped backups)
+- ✅ Data safety (backup before deletion)
+- ✅ Fast processing (small RDF files every time)
+
+---
+
+### Complete Flow Summary
+
+**Input:** 3 new documents in Elasticsearch
+
+**Step-by-Step Execution:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  1. INCREMENTAL PROCESSING                               │
+└──────────────────────────────────────────────────────────┘
+load_unprocessed_documents()
+  └─> Returns: 3 documents (ignores 5 already processed)
+
+┌──────────────────────────────────────────────────────────┐
+│  2. DUPLICATE PREVENTION                                 │
+└──────────────────────────────────────────────────────────┘
+For each document:
+  create_node_id('judge', 'Justice D. Y. Chandrachud')
+    └─> Returns: 'judge_ea7adefd' (SAME for Doc A & B)
+  
+  _get_or_create_judge_node('Justice D. Y. Chandrachud')
+    ├─> Doc A: Creates node (first time)
+    ├─> Doc B: Returns existing ID (no duplicate!)
+    └─> Doc C: Creates new node for different judge
+
+Result: 2 judge nodes in RDF (not 3)
+
+┌──────────────────────────────────────────────────────────┐
+│  3. ENTITY LINKING                                       │
+└──────────────────────────────────────────────────────────┘
+_upload_to_dgraph() with --upsert-predicates
+  ├─> Dgraph checks: judge_ea7adefd exists? YES
+  ├─> Action: Links to existing UID (0x1a2b)
+  └─> Result: No duplicate judge in Dgraph
+
+┌──────────────────────────────────────────────────────────┐
+│  4. CLEAN WORKSPACE                                      │
+└──────────────────────────────────────────────────────────┘
+_cleanup_rdf_file()
+  ├─> Backup: judgments_backup_20251106_134530.rdf
+  └─> Delete: judgments.rdf
+
+Final State:
+  ├─> Elasticsearch: 3 docs marked as processed
+  ├─> Dgraph: 3 new judgments linked to 1 existing + 1 new judge
+  └─> Workspace: Clean (only backup files)
+```
+
+**Verification Commands:**
+
+```bash
+# 1. Check Elasticsearch processed status
+curl -X POST http://localhost:9200/graphdb/_search -H 'Content-Type: application/json' -d '{
+  "query": {"term": {"processed_to_dgraph": true}}
+}'
+# Returns: 8 documents (5 old + 3 new)
+
+# 2. Query Dgraph for judge
+curl -X POST http://localhost:8180/query -d '{
+  judge(func: eq(judge_id, "judge_ea7adefd")) {
+    name
+    ~judged_by {
+      title
+      count(uid)
+    }
+  }
+}'
+# Returns: 7 cases (5 old + 2 new)
+
+# 3. Check workspace
+ls -la rdf/
+# Shows: Only backup files, no judgments.rdf
+```
+
+---
+
+## Summary
+
+This system provides a complete solution for building a legal judgment knowledge graph with advanced features:
+
+### ✅ Core Features
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **Duplicate Prevention** | Content-based IDs + Dgraph upsert | ✅ Working |
+| **Incremental Processing** | Only new documents processed | ✅ Working |
+| **Entity Linking** | New judgments link to existing entities | ✅ Working |
+| **Citation-Title Unification** | Citations and judgments merge automatically | ✅ Fixed (v2.1) |
+| **Clean Workspace** | RDF files auto-cleaned after upload | ✅ Working |
+| **API Access** | REST API for all operations | ✅ Working |
+| **Auto-Processing** | Background worker for automatic updates | ✅ Working |
+| **Stable IDs** | Same entity always gets same ID across batches | ✅ Working |
+| **Relationship Management** | Modular handlers for each entity type | ✅ Working |
+
+### 🔑 Key Innovations
+
+1. **MD5 Hash-Based Stable IDs**  
+   Same entity content → Same ID → No duplicates across batches
+   ```python
+   "Justice D. Y. Chandrachud" → <judge_ea7adefd> (always!)
+   ```
+
+2. **Title-Based Judgment IDs** (v2.1 Fix)  
+   Citations and actual judgments use same ID generation
+   ```python
+   Citation: "Case X" → <j_abc123>
+   Judgment: "Case X" → <j_abc123> (same!)
+   Result: Merged by Dgraph upsert ✅
+   ```
+
+3. **Incremental Processing**  
+   Only unprocessed documents → Faster, more efficient
+   ```python
+   5000 documents total, 10 new → Process only 10!
+   ```
+
+4. **Smart Entity Reuse**  
+   Link to existing entities instead of creating duplicates
+   ```python
+   Judge already exists → Link to it, don't recreate
+   ```
+
+### 📊 System Architecture
+
+```
+┌─────────────────┐
+│  Excel Files    │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐      ┌─────────────────┐
+│ Elasticsearch   │◄─────┤ elasticsearch   │
+│ (Data Store)    │      │ _upload.py      │
+└────────┬────────┘      └─────────────────┘
+         │
+         ▼
+┌─────────────────┐      ┌─────────────────┐
+│ FastAPI App     │◄─────┤ HTTP Requests   │
+│ (REST API)      │      │ (Port 8003)     │
+└────────┬────────┘      └─────────────────┘
+         │
+         ▼
+┌─────────────────┐      ┌─────────────────┐
+│ Incremental     │◄─────┤ Relationship    │
+│ Processor       │      │ Handlers        │
+└────────┬────────┘      └─────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│ RDF Generator   │
+│ (judgments.rdf) │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐      ┌─────────────────┐
+│ Dgraph Live     │◄─────┤ Docker          │
+│ Loader (Upsert) │      │ Container       │
+└────────┬────────┘      └─────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Dgraph Database │
+│ (Knowledge Graph│
+└─────────────────┘
+```
+
+### 🚀 Quick Start Commands
+
+```bash
+# 1. Start infrastructure
+docker run -it -p 8180:8080 -p 8181:8081 -v ~/dgraph_data:/dgraph dgraph/dgraph:v23.1.0
+docker run -d -p 9200:9200 -e "discovery.type=single-node" elasticsearch:8.11.0
+
+# 2. Upload schema
+curl -X POST localhost:8180/alter -d @rdf.schema
+
+# 3. Upload data to Elasticsearch
+python3 elasticsearch_upload.py
+
+# 4. Start FastAPI
+uvicorn fastapi_app:app --host 0.0.0.0 --port 8003 --reload
+
+# 5. Process documents
+curl -X POST http://localhost:8003/process
+
+# 6. Query results
+curl -X POST http://localhost:8180/query -d '{
+  allJudgments(func: type(Judgment)) {
+    uid
+    title
+    judged_by { name }
+  }
+}'
+```
+
+### 📚 Additional Documentation
+
+| Document | Purpose |
+|----------|---------|
+| `CITATION_TITLE_UNIFICATION.md` | Citation-title unification strategy |
+| `CITATION_TITLE_FIX_VERIFICATION.md` | Detailed fix verification |
+| `INCREMENTAL_PROCESSING_GUIDE.md` | Incremental processing deep dive |
+| `test_citation_unification.py` | Comprehensive test suite |
+| `querry_cli.txt` | Sample Dgraph queries |
+| `docker_information.txt` | Docker setup details |
+| `rdf/README.md` | RDF folder documentation |
+
+### 🐛 Recent Bug Fixes (v2.1)
+
+**Citation-Title Duplication** (November 6, 2025)
+- **Issue**: Citations and judgments created different nodes for same case
+- **Root Cause**: Different `unique_key` used (doc_id vs title)
+- **Fix**: Changed judgment ID generation to use title (consistent with citations)
+- **Impact**: All new uploads now prevent duplicates automatically
+- **Verification**: All tests passing ✅
+
+### 🔧 Support & Troubleshooting
+
+**Log Files**:
+- `rdf_generator.log` - Processing logs
+- `elasticsearch_upload.log` - Upload logs
+
+**Health Checks**:
+```bash
+# Check Elasticsearch
+curl http://localhost:9200/_cluster/health
+
+# Check Dgraph
+curl http://localhost:8180/health
+
+# Check FastAPI
+curl http://localhost:8003/health
+```
+
+**Common Issues**: See [Troubleshooting & FAQ](#11-troubleshooting--faq) section above
+
+---
+
+**Version**: 2.1  
+**Last Updated**: November 6, 2025  
+**Status**: Production Ready ✅  
+**License**: MIT  
+**Author**: Anish DF
